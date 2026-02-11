@@ -2,7 +2,7 @@
 infra:
   vpc:
     # VPC CIDR
-    cidr: &vpc_cidr "10.242.0.0/19"
+    cidr: &vpc_cidr "10.244.0.0/19"
 
     ############### Subnet ###############
     # 타입별 서브넷 정의 [att, com, db, eksng, lb, vpce]
