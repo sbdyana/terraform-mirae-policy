@@ -92,840 +92,840 @@ infra:
             destination: *vpc_cidr
             target: "local"
 
-    security_groups:
-      vpce:
-        type: "vpce"
-        name_optional: ""
-        description: "Security group for VPC endpoints"
-        rules:
-        - type: "inbound"
-          cidr: *vpc_cidr
-          protocol: "tcp"
-          from_port: 443
-          to_port: 443
-          description: "HTTPS from VPC"
-      ec:
-        type: "ec"
-        name_optional: "redis"
-        description: "Security Group for Redis"
-        rules:
-        - type: "inbound"
-          cidr: *vpc_cidr
-          protocol: "tcp"
-          from_port: 443
-          to_port: 443
-          description: "Redis Traffic From VPC"
-      eks_cluster:
-        type: "eks-cls"
-        name_optional: "add"
-        description: "EKS Control Plane Additional Security Group"
-        rules:
-        - type: "inbound"
-          cidr: *vpc_cidr
-          protocol: "tcp"
-          from_port: 443
-          to_port: 443
-          description: "HTTPS from VPC"
-      sg-03:
-        type: "ec2"
-        name_optional: "weaviate"
-        description: "Security Group for ec2 weaviate"
-        rules:
-        - type: "inbound"
-          cidr: "10.242.0.0/16"
-          protocol: "tcp"
-          from_port: 22
-          to_port: 22
-          description: "SSH From Network VPC"
-        - type: "outbound"
-          cidr: 0.0.0.0/0
-          protocol: "-1"
-          from_port: 
-          to_port: 
-          description: ""
-############### opensearch sg ###############
-      sg-04:
-        type: "oss-cls"
-        name_optional: ""
-        description: "Security Group for Opensearch sg"
-        rules:
-        - type: "inbound"
-          cidr: 10.0.0.0/8
-          protocol: "-1"
-          from_port: 
-          to_port: 
-          description: "ANY Traffic From VPC"
-        - type: "outbound"
-          cidr: 0.0.0.0/0
-          protocol: "-1"
-          from_port: 
-          to_port: 
-          description: ""
-      eks_node:
-        type: "eks-ng"
-        name_optional:
-        description: "EKS Control Plane Additional Security Group"
-        rules:
-        - type: "inbound"
-          cidr: *vpc_cidr
-          protocol: "tcp"
-          from_port: 9443
-          to_port: 9443
-          description: "From AWS LBC Webhook Port"
-        - type: "inbound"
-          cidr: *vpc_cidr
-          protocol: "tcp"
-          from_port: 10250
-          to_port: 10260
-          description: "From k8s, cert-manager"
-        - type: "inbound"
-          cidr: *vpc_cidr
-          protocol: "tcp"
-          from_port: 22
-          to_port: 22
-          description: "From VPC SSH Protocol"
-        - type: "outbound"
-          cidr: "0.0.0.0/0"
-          protocol: "-1"
-          from_port: 0
-          to_port: 0
-          description: "Outbound Any"
+#     security_groups:
+#       vpce:
+#         type: "vpce"
+#         name_optional: ""
+#         description: "Security group for VPC endpoints"
+#         rules:
+#         - type: "inbound"
+#           cidr: *vpc_cidr
+#           protocol: "tcp"
+#           from_port: 443
+#           to_port: 443
+#           description: "HTTPS from VPC"
+#       ec:
+#         type: "ec"
+#         name_optional: "redis"
+#         description: "Security Group for Redis"
+#         rules:
+#         - type: "inbound"
+#           cidr: *vpc_cidr
+#           protocol: "tcp"
+#           from_port: 443
+#           to_port: 443
+#           description: "Redis Traffic From VPC"
+#       eks_cluster:
+#         type: "eks-cls"
+#         name_optional: "add"
+#         description: "EKS Control Plane Additional Security Group"
+#         rules:
+#         - type: "inbound"
+#           cidr: *vpc_cidr
+#           protocol: "tcp"
+#           from_port: 443
+#           to_port: 443
+#           description: "HTTPS from VPC"
+#       sg-03:
+#         type: "ec2"
+#         name_optional: "weaviate"
+#         description: "Security Group for ec2 weaviate"
+#         rules:
+#         - type: "inbound"
+#           cidr: "10.242.0.0/16"
+#           protocol: "tcp"
+#           from_port: 22
+#           to_port: 22
+#           description: "SSH From Network VPC"
+#         - type: "outbound"
+#           cidr: 0.0.0.0/0
+#           protocol: "-1"
+#           from_port: 
+#           to_port: 
+#           description: ""
+# ############### opensearch sg ###############
+#       sg-04:
+#         type: "oss-cls"
+#         name_optional: ""
+#         description: "Security Group for Opensearch sg"
+#         rules:
+#         - type: "inbound"
+#           cidr: 10.0.0.0/8
+#           protocol: "-1"
+#           from_port: 
+#           to_port: 
+#           description: "ANY Traffic From VPC"
+#         - type: "outbound"
+#           cidr: 0.0.0.0/0
+#           protocol: "-1"
+#           from_port: 
+#           to_port: 
+#           description: ""
+#       eks_node:
+#         type: "eks-ng"
+#         name_optional:
+#         description: "EKS Control Plane Additional Security Group"
+#         rules:
+#         - type: "inbound"
+#           cidr: *vpc_cidr
+#           protocol: "tcp"
+#           from_port: 9443
+#           to_port: 9443
+#           description: "From AWS LBC Webhook Port"
+#         - type: "inbound"
+#           cidr: *vpc_cidr
+#           protocol: "tcp"
+#           from_port: 10250
+#           to_port: 10260
+#           description: "From k8s, cert-manager"
+#         - type: "inbound"
+#           cidr: *vpc_cidr
+#           protocol: "tcp"
+#           from_port: 22
+#           to_port: 22
+#           description: "From VPC SSH Protocol"
+#         - type: "outbound"
+#           cidr: "0.0.0.0/0"
+#           protocol: "-1"
+#           from_port: 0
+#           to_port: 0
+#           description: "Outbound Any"
 
-    ############### VPC Endpoints ###############
-    # VPC 엔드포인트를 통해 AWS 서비스에 Private 연결
-    # - route_tables: Gateway 타입용 Route Table 연결 (vpc.route_tables의 타입명)
-    # - subnets: Interface 타입용 Subnet 연결 (vpc.subnets의 타입명)
-    # - security_groups: Interface 타입용 Security Group (vpc.security_groups의 key)
-    # - private_dns_enabled: Interface 타입용 Private DNS 활성화 (기본값: true)
-    #   -> AWS 서비스 도메인을 VPC Endpoint ENI IP로 resolve
-    #
-    # Gateway 타입 (무료, Route Table 기반):
-    #   - s3: S3 버킷 접근
-    #   - dynamodb: DynamoDB 테이블 접근
-    #
-    # Interface 타입 (ENI 기반, 비용 발생):
-    #   [EKS 필수]
-    #   - ec2: EC2 API (노드 등록/관리)
-    #   - ecr.api: ECR API (이미지 메타데이터)
-    #   - ecr.dkr: ECR Docker Registry (이미지 Pull)
-    #   - sts: STS (IAM 인증, IRSA)
-    #   - logs: CloudWatch Logs (컨테이너 로그)
-    #   [EKS 선택]
-    #   - elasticloadbalancing: ELB/ALB/NLB 관리
-    #   - autoscaling: Auto Scaling 그룹 관리
-    #   - eks: EKS API (kubectl 등)
-    #   - eks-auth: EKS Pod Identity
-    #   [운영/관리]
-    #   - ssm: Systems Manager (Session Manager)
-    #   - ssmmessages: Session Manager 메시지
-    #   - ec2messages: SSM Agent 통신
-    #   [기타]
-    #   - kms: KMS 암호화/복호화
-    #   - secretsmanager: Secrets Manager
-    #   - sqs: SQS 메시지 큐
-    #   - sns: SNS 알림
-    #   - lambda: Lambda 함수 호출
-    #   - execute-api: API Gateway
-    #   - monitoring: CloudWatch Metrics
-    #   - events: EventBridge
-    vpc_endpoints:
-      # Gateway 타입 (S3)
-      s3:
-        route_tables:
-        - "com"
-        - "eksng"
-        - "lb"
-        subnets:
-        security_groups:
-        private_dns_enabled:
-      # EKS 필수 - EC2 API
-      ec2:
-        route_tables:
-        subnets:
-        - "vpce"
-        security_groups:
-        - "vpce"
-        private_dns_enabled: true
-      # EKS 필수 - ECR API (이미지 메타데이터)
-      ecr.api:
-        route_tables:
-        subnets:
-        - "vpce"
-        security_groups:
-        - "vpce"
-        private_dns_enabled: true
-      # EKS 필수 - ECR Docker Registry (이미지 Pull)
-      ecr.dkr:
-        route_tables:
-        subnets:
-        - "vpce"
-        security_groups:
-        - "vpce"
-        private_dns_enabled: true
-      # EKS 필수 - STS (IAM 인증, IRSA)
-      sts:
-        route_tables:
-        subnets:
-        - "vpce"
-        security_groups:
-        - "vpce"
-        private_dns_enabled: true
-      # EKS 필수 - CloudWatch Logs
-      logs:
-        route_tables:
-        subnets:
-        - "vpce"
-        security_groups:
-        - "vpce"
-        private_dns_enabled: true
-      # EKS 필수 - EKS API (Private Endpoint 환경에서 노드 조인에 필수)
-      eks:
-        route_tables:
-        subnets:
-        - "vpce"
-        security_groups:
-        - "vpce"
-        private_dns_enabled: true
+#     ############### VPC Endpoints ###############
+#     # VPC 엔드포인트를 통해 AWS 서비스에 Private 연결
+#     # - route_tables: Gateway 타입용 Route Table 연결 (vpc.route_tables의 타입명)
+#     # - subnets: Interface 타입용 Subnet 연결 (vpc.subnets의 타입명)
+#     # - security_groups: Interface 타입용 Security Group (vpc.security_groups의 key)
+#     # - private_dns_enabled: Interface 타입용 Private DNS 활성화 (기본값: true)
+#     #   -> AWS 서비스 도메인을 VPC Endpoint ENI IP로 resolve
+#     #
+#     # Gateway 타입 (무료, Route Table 기반):
+#     #   - s3: S3 버킷 접근
+#     #   - dynamodb: DynamoDB 테이블 접근
+#     #
+#     # Interface 타입 (ENI 기반, 비용 발생):
+#     #   [EKS 필수]
+#     #   - ec2: EC2 API (노드 등록/관리)
+#     #   - ecr.api: ECR API (이미지 메타데이터)
+#     #   - ecr.dkr: ECR Docker Registry (이미지 Pull)
+#     #   - sts: STS (IAM 인증, IRSA)
+#     #   - logs: CloudWatch Logs (컨테이너 로그)
+#     #   [EKS 선택]
+#     #   - elasticloadbalancing: ELB/ALB/NLB 관리
+#     #   - autoscaling: Auto Scaling 그룹 관리
+#     #   - eks: EKS API (kubectl 등)
+#     #   - eks-auth: EKS Pod Identity
+#     #   [운영/관리]
+#     #   - ssm: Systems Manager (Session Manager)
+#     #   - ssmmessages: Session Manager 메시지
+#     #   - ec2messages: SSM Agent 통신
+#     #   [기타]
+#     #   - kms: KMS 암호화/복호화
+#     #   - secretsmanager: Secrets Manager
+#     #   - sqs: SQS 메시지 큐
+#     #   - sns: SNS 알림
+#     #   - lambda: Lambda 함수 호출
+#     #   - execute-api: API Gateway
+#     #   - monitoring: CloudWatch Metrics
+#     #   - events: EventBridge
+#     vpc_endpoints:
+#       # Gateway 타입 (S3)
+#       s3:
+#         route_tables:
+#         - "com"
+#         - "eksng"
+#         - "lb"
+#         subnets:
+#         security_groups:
+#         private_dns_enabled:
+#       # EKS 필수 - EC2 API
+#       ec2:
+#         route_tables:
+#         subnets:
+#         - "vpce"
+#         security_groups:
+#         - "vpce"
+#         private_dns_enabled: true
+#       # EKS 필수 - ECR API (이미지 메타데이터)
+#       ecr.api:
+#         route_tables:
+#         subnets:
+#         - "vpce"
+#         security_groups:
+#         - "vpce"
+#         private_dns_enabled: true
+#       # EKS 필수 - ECR Docker Registry (이미지 Pull)
+#       ecr.dkr:
+#         route_tables:
+#         subnets:
+#         - "vpce"
+#         security_groups:
+#         - "vpce"
+#         private_dns_enabled: true
+#       # EKS 필수 - STS (IAM 인증, IRSA)
+#       sts:
+#         route_tables:
+#         subnets:
+#         - "vpce"
+#         security_groups:
+#         - "vpce"
+#         private_dns_enabled: true
+#       # EKS 필수 - CloudWatch Logs
+#       logs:
+#         route_tables:
+#         subnets:
+#         - "vpce"
+#         security_groups:
+#         - "vpce"
+#         private_dns_enabled: true
+#       # EKS 필수 - EKS API (Private Endpoint 환경에서 노드 조인에 필수)
+#       eks:
+#         route_tables:
+#         subnets:
+#         - "vpce"
+#         security_groups:
+#         - "vpce"
+#         private_dns_enabled: true
 
-    ############### EC2 Instance ###############
-    # - name_optional: 이름 뒤에 추가할 문자열 (선택)
-    # - ami: AMI ID
-    # - instance_type: 인스턴스 타입 (예: t3.small)
-    # - subnet: 서브넷 타입 키 (att/com/db/eksng/lb/vpce)
-    # - availability_zone: 가용영역 (예: "a", "c")
-    # - security_groups: 보안 그룹 키 목록 (vpc.security_groups의 키)
-    # - iam_instance_profile: IAM 인스턴스 프로파일 이름
-    # - ebs_optimized: EBS 최적화 여부
-    # - root_block_device:
-    #     - volume_type: 루트 볼륨 타입 (gp2/gp3/io1/io2 등)
-    #     - volume_size: 루트 볼륨 크기(GB)
-    #     - iops: IOPS (gp3/io1/io2용)
-    #     - throughput: 처리량 (gp3용, MiB/s)
-    #     - encrypted: 암호화 여부
-    #     - kms_key_id: KMS 키 ID/ARN
+#     ############### EC2 Instance ###############
+#     # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+#     # - ami: AMI ID
+#     # - instance_type: 인스턴스 타입 (예: t3.small)
+#     # - subnet: 서브넷 타입 키 (att/com/db/eksng/lb/vpce)
+#     # - availability_zone: 가용영역 (예: "a", "c")
+#     # - security_groups: 보안 그룹 키 목록 (vpc.security_groups의 키)
+#     # - iam_instance_profile: IAM 인스턴스 프로파일 이름
+#     # - ebs_optimized: EBS 최적화 여부
+#     # - root_block_device:
+#     #     - volume_type: 루트 볼륨 타입 (gp2/gp3/io1/io2 등)
+#     #     - volume_size: 루트 볼륨 크기(GB)
+#     #     - iops: IOPS (gp3/io1/io2용)
+#     #     - throughput: 처리량 (gp3용, MiB/s)
+#     #     - encrypted: 암호화 여부
+#     #     - kms_key_id: KMS 키 ID/ARN
     
-    ec2_instances:
-      ec2-01:
-        name_optional: "weaviate"
-        ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
-        instance_type: "t3.small" #r7i.large
-        subnet: "db" 
-        availability_zone: "a"
-        security_groups: 
-        - "sg-03"
-        iam_instance_profile: 
-        ebs_optimized: true
-        root_block_device:
-          volume_type: "gp3"
-          volume_size: 100
-          iops: 0
-          throughput: 0
-          encrypted:
-          kms_key_id: ""
-      ec2-02:
-        name_optional: "weaviate"
-        ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
-        instance_type: "t3.small" #r7i.large
-        subnet: "db" 
-        availability_zone: "c"
-        security_groups: 
-        - "sg-03"
-        iam_instance_profile: 
-        ebs_optimized: true
-        root_block_device:
-          volume_type: "gp3"
-          volume_size: 100
-          iops: 0
-          throughput: 0
-          encrypted:
-          kms_key_id: ""
-      ec2-03:
-        name_optional: "weaviate"
-        ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
-        instance_type: "t3.small" #r7i.large
-        subnet: "db" 
-        availability_zone: "a"
-        security_groups: 
-        - "sg-03"
-        iam_instance_profile: 
-        ebs_optimized: true
-        root_block_device:
-          volume_type: "gp3"
-          volume_size: 100
-          iops: 0
-          throughput: 0
-          encrypted:
-          kms_key_id: ""
+#     ec2_instances:
+#       ec2-01:
+#         name_optional: "weaviate"
+#         ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
+#         instance_type: "t3.small" #r7i.large
+#         subnet: "db" 
+#         availability_zone: "a"
+#         security_groups: 
+#         - "sg-03"
+#         iam_instance_profile: 
+#         ebs_optimized: true
+#         root_block_device:
+#           volume_type: "gp3"
+#           volume_size: 100
+#           iops: 0
+#           throughput: 0
+#           encrypted:
+#           kms_key_id: ""
+#       ec2-02:
+#         name_optional: "weaviate"
+#         ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
+#         instance_type: "t3.small" #r7i.large
+#         subnet: "db" 
+#         availability_zone: "c"
+#         security_groups: 
+#         - "sg-03"
+#         iam_instance_profile: 
+#         ebs_optimized: true
+#         root_block_device:
+#           volume_type: "gp3"
+#           volume_size: 100
+#           iops: 0
+#           throughput: 0
+#           encrypted:
+#           kms_key_id: ""
+#       ec2-03:
+#         name_optional: "weaviate"
+#         ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
+#         instance_type: "t3.small" #r7i.large
+#         subnet: "db" 
+#         availability_zone: "a"
+#         security_groups: 
+#         - "sg-03"
+#         iam_instance_profile: 
+#         ebs_optimized: true
+#         root_block_device:
+#           volume_type: "gp3"
+#           volume_size: 100
+#           iops: 0
+#           throughput: 0
+#           encrypted:
+#           kms_key_id: ""
 
-    ############### OpenSearch ###############
-    # 최종 Name: oss-cls-${local.base_name}
-    # - engine_version: 엔진 버전 (기본값: "OpenSearch_2.11")
-    # - instance_type: 데이터 노드 타입 (기본값: "r6g.large.search")
-    # - instance_count: 데이터 노드 수 (기본값: 1)
-    # - dedicated_master_enabled: 전용 마스터 사용 여부 (기본값: false)
-    # - dedicated_master_type: 전용 마스터 타입 (기본값: "")
-    # - dedicated_master_count: 전용 마스터 수 (기본값: 0)
-    # - zone_awareness_enabled: 멀티 AZ 여부 (기본값: false)
-    # - availability_zone_count: AZ 개수 (기본값: zone_awareness_enabled=true면 2, 아니면 1)
-    # - ebs_enabled: EBS 사용 여부 (기본값: true)
-    # - ebs_volume_type: EBS 타입 (기본값: "gp3")
-    # - ebs_volume_size: EBS 용량 GB (기본값: 100)
-    # - ebs_iops: IOPS (기본값: null)
-    # - ebs_throughput: Throughput MiB/s (기본값: null)
-    # - subnets: 서브넷 타입 키 리스트
-    # - availability_zones: AZ 리스트 (zone_awareness_enabled=false면 1개, true면 2개 이상)
-    # - security_groups: 보안그룹 키 리스트 (기본값: [])
-    # - encrypt_at_rest_enabled: 저장 암호화 (기본값: true)
-    # - advanced_security_options_enabled: 보안 옵션 활성화 (기본값: false)
-    # - anonymous_auth_enabled: 익명 인증 허용 (기본값: false)
-    # - internal_user_database_enabled: 내부 유저 DB 사용 (기본값: false)
-    # - master_user_arn: 마스터 유저 ARN (기본값: "")
-    # - master_user_name: 마스터 유저 이름 (기본값: "")
-    # - master_user_password: 마스터 유저 비밀번호 (기본값: "")
-    # - aiml_options.natural_language_query_generation_enabled: 자연어 쿼리 생성 (기본값: false)
-    # - aiml_options.s3_vectors_engine_enabled: S3 Vectors Engine (기본값: false)
-    # - aiml_options.serverless_vector_acceleration_enabled: GPU 벡터 가속 (기본값: false)
-    # - auto_tune_enabled: Auto-Tune 사용 (기본값: null)
-    # - automated_snapshot_start_hour: 자동 스냅샷 시작 시각 (0-23, 기본값: null)
-    # - auto_software_update_enabled: 자동 업데이트 (기본값: null)
-    # - access_policies: 
-    opensearch:
-      engine_version: "OpenSearch_3.3"
+#     ############### OpenSearch ###############
+#     # 최종 Name: oss-cls-${local.base_name}
+#     # - engine_version: 엔진 버전 (기본값: "OpenSearch_2.11")
+#     # - instance_type: 데이터 노드 타입 (기본값: "r6g.large.search")
+#     # - instance_count: 데이터 노드 수 (기본값: 1)
+#     # - dedicated_master_enabled: 전용 마스터 사용 여부 (기본값: false)
+#     # - dedicated_master_type: 전용 마스터 타입 (기본값: "")
+#     # - dedicated_master_count: 전용 마스터 수 (기본값: 0)
+#     # - zone_awareness_enabled: 멀티 AZ 여부 (기본값: false)
+#     # - availability_zone_count: AZ 개수 (기본값: zone_awareness_enabled=true면 2, 아니면 1)
+#     # - ebs_enabled: EBS 사용 여부 (기본값: true)
+#     # - ebs_volume_type: EBS 타입 (기본값: "gp3")
+#     # - ebs_volume_size: EBS 용량 GB (기본값: 100)
+#     # - ebs_iops: IOPS (기본값: null)
+#     # - ebs_throughput: Throughput MiB/s (기본값: null)
+#     # - subnets: 서브넷 타입 키 리스트
+#     # - availability_zones: AZ 리스트 (zone_awareness_enabled=false면 1개, true면 2개 이상)
+#     # - security_groups: 보안그룹 키 리스트 (기본값: [])
+#     # - encrypt_at_rest_enabled: 저장 암호화 (기본값: true)
+#     # - advanced_security_options_enabled: 보안 옵션 활성화 (기본값: false)
+#     # - anonymous_auth_enabled: 익명 인증 허용 (기본값: false)
+#     # - internal_user_database_enabled: 내부 유저 DB 사용 (기본값: false)
+#     # - master_user_arn: 마스터 유저 ARN (기본값: "")
+#     # - master_user_name: 마스터 유저 이름 (기본값: "")
+#     # - master_user_password: 마스터 유저 비밀번호 (기본값: "")
+#     # - aiml_options.natural_language_query_generation_enabled: 자연어 쿼리 생성 (기본값: false)
+#     # - aiml_options.s3_vectors_engine_enabled: S3 Vectors Engine (기본값: false)
+#     # - aiml_options.serverless_vector_acceleration_enabled: GPU 벡터 가속 (기본값: false)
+#     # - auto_tune_enabled: Auto-Tune 사용 (기본값: null)
+#     # - automated_snapshot_start_hour: 자동 스냅샷 시작 시각 (0-23, 기본값: null)
+#     # - auto_software_update_enabled: 자동 업데이트 (기본값: null)
+#     # - access_policies: 
+#     opensearch:
+#       engine_version: "OpenSearch_3.3"
 
-      # Cluster configuration
-      instance_type: "m7g.xlarge.search" #prd m7g.xlarge.search
-      instance_count: 2 #prd 2
-      dedicated_master_enabled: true #prd true
-      dedicated_master_type: "c7g.large.search" # prd"c7g.large.search"
-      dedicated_master_count: 3 # prd 3
-      zone_awareness_enabled: true # prd true
-      availability_zone_count: 2 # prd 2-대기 상태가 아닌 AZ
-      cold_storage_enabled: false
-      # EBS options
-      ebs_enabled: true
-      ebs_volume_type: "gp3"
-      ebs_volume_size: 250 # prd 250
-      ebs_iops: 0
-      ebs_throughput: 250
+#       # Cluster configuration
+#       instance_type: "m7g.xlarge.search" #prd m7g.xlarge.search
+#       instance_count: 2 #prd 2
+#       dedicated_master_enabled: true #prd true
+#       dedicated_master_type: "c7g.large.search" # prd"c7g.large.search"
+#       dedicated_master_count: 3 # prd 3
+#       zone_awareness_enabled: true # prd true
+#       availability_zone_count: 2 # prd 2-대기 상태가 아닌 AZ
+#       cold_storage_enabled: false
+#       # EBS options
+#       ebs_enabled: true
+#       ebs_volume_type: "gp3"
+#       ebs_volume_size: 250 # prd 250
+#       ebs_iops: 0
+#       ebs_throughput: 250
 
-      # VPC options
-      subnets:
-      - "db"
-      availability_zones: ["a","c"] # zone_awareness_enabled=false면 1개, true면 2개 이상
-      security_groups:
-      - "sg-04"
+#       # VPC options
+#       subnets:
+#       - "db"
+#       availability_zones: ["a","c"] # zone_awareness_enabled=false면 1개, true면 2개 이상
+#       security_groups:
+#       - "sg-04"
       
-      # Encryption
-      encrypt_at_rest_kms_key_id: "" # 키 필요 
+#       # Encryption
+#       encrypt_at_rest_kms_key_id: "" # 키 필요 
 
-      # Advanced security options
-      advanced_security_options_enabled: true
-      anonymous_auth_enabled: false
-      internal_user_database_enabled: true
-      master_user_arn: 
-      master_user_name: "miraeasset" 
-      master_user_password: "Mirae12#$%"
+#       # Advanced security options
+#       advanced_security_options_enabled: true
+#       anonymous_auth_enabled: false
+#       internal_user_database_enabled: true
+#       master_user_arn: 
+#       master_user_name: "miraeasset" 
+#       master_user_password: "Mirae12#$%"
 
-      # AI/ML options
-      aiml_options:
-        natural_language_query_generation_enabled: false
-        s3_vectors_engine_enabled: false
-        serverless_vector_acceleration_enabled: false
-      auto_tune_enabled: false
+#       # AI/ML options
+#       aiml_options:
+#         natural_language_query_generation_enabled: false
+#         s3_vectors_engine_enabled: false
+#         serverless_vector_acceleration_enabled: false
+#       auto_tune_enabled: false
 
-      # Snapshot options
-      automated_snapshot_start_hour:
+#       # Snapshot options
+#       automated_snapshot_start_hour:
 
-      # Software update options
-      auto_software_update_enabled: false
+#       # Software update options
+#       auto_software_update_enabled: false
 
-      # Access policies
-      access_policies: "opensearch-policy.json"
+#       # Access policies
+#       access_policies: "opensearch-policy.json"
     
-    ############### ElastiCache (Redis/Valkey) ###############
-    # - name_optional: 이름 뒤에 추가할 문자열 (선택)
-    # - description: 설명
-    # - engine: redis, valkey
-    # - engine_version: 엔진 버전
-    # - node_type: 노드 타입
-    # - port: 포트 (기본값: 6379)
-    # - security_groups: 보안 그룹 참조 (vpc.security_groups에서 정의된 이름)
-    # - num_cache_clusters: 클러스터 수 (cluster mode disabled)
-    # - preferred_azs: 노드별 가용영역 (첫 번째=Primary, 나머지=Replica, 예: ["a", "c"])
-    # - num_node_groups: 노드 그룹 수 (cluster mode enabled)
-    # - replicas_per_node_group: 노드 그룹당 replica 수 (cluster mode enabled)
-    # - automatic_failover_enabled: 자동 failover (기본값: true)
-    # - multi_az_enabled: Multi-AZ (기본값: true)
-    # - at_rest_encryption_enabled: 저장 암호화 (기본값: true)
-    # - transit_encryption_enabled: 전송 암호화 (기본값: true)
-    # - transit_encryption_mode: 전송 암호화 모드 (preferred, required)
-    # - auth_token: 인증 토큰 (비밀번호)
-    # - kms_key_id: KMS 키 ARN
-    # - snapshot_retention_limit: 스냅샷 보존 기간 (일)
-    # - snapshot_window: 스냅샷 시간 (예: "05:00-09:00")
-    # - maintenance_window: 유지보수 시간 (예: "sun:05:00-sun:09:00")
-    # - auto_minor_version_upgrade: 자동 마이너 버전 업그레이드 (기본값: true)
-    # - apply_immediately: 즉시 적용 (기본값: false)
-    elasticaches:
-      redis:
-        name_optional: "redis"
-        description: "ElastiCache Redis"
-        engine: "redis"
-        engine_version: "7.1"
-        node_type: "cache.r7g.large"
-        port: 6379
+#     ############### ElastiCache (Redis/Valkey) ###############
+#     # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+#     # - description: 설명
+#     # - engine: redis, valkey
+#     # - engine_version: 엔진 버전
+#     # - node_type: 노드 타입
+#     # - port: 포트 (기본값: 6379)
+#     # - security_groups: 보안 그룹 참조 (vpc.security_groups에서 정의된 이름)
+#     # - num_cache_clusters: 클러스터 수 (cluster mode disabled)
+#     # - preferred_azs: 노드별 가용영역 (첫 번째=Primary, 나머지=Replica, 예: ["a", "c"])
+#     # - num_node_groups: 노드 그룹 수 (cluster mode enabled)
+#     # - replicas_per_node_group: 노드 그룹당 replica 수 (cluster mode enabled)
+#     # - automatic_failover_enabled: 자동 failover (기본값: true)
+#     # - multi_az_enabled: Multi-AZ (기본값: true)
+#     # - at_rest_encryption_enabled: 저장 암호화 (기본값: true)
+#     # - transit_encryption_enabled: 전송 암호화 (기본값: true)
+#     # - transit_encryption_mode: 전송 암호화 모드 (preferred, required)
+#     # - auth_token: 인증 토큰 (비밀번호)
+#     # - kms_key_id: KMS 키 ARN
+#     # - snapshot_retention_limit: 스냅샷 보존 기간 (일)
+#     # - snapshot_window: 스냅샷 시간 (예: "05:00-09:00")
+#     # - maintenance_window: 유지보수 시간 (예: "sun:05:00-sun:09:00")
+#     # - auto_minor_version_upgrade: 자동 마이너 버전 업그레이드 (기본값: true)
+#     # - apply_immediately: 즉시 적용 (기본값: false)
+#     elasticaches:
+#       redis:
+#         name_optional: "redis"
+#         description: "ElastiCache Redis"
+#         engine: "redis"
+#         engine_version: "7.1"
+#         node_type: "cache.r7g.large"
+#         port: 6379
 
-        # Cluster mode disabled (replica 구성)
-        num_cache_clusters: 2
+#         # Cluster mode disabled (replica 구성)
+#         num_cache_clusters: 2
 
-        # 노드별 가용영역 지정 (첫 번째 = Primary, 나머지 = Replica)
-        # num_cache_clusters와 개수가 일치해야 함
-        preferred_azs:
-        - "a"  # Primary
-        - "c"  # Replica
+#         # 노드별 가용영역 지정 (첫 번째 = Primary, 나머지 = Replica)
+#         # num_cache_clusters와 개수가 일치해야 함
+#         preferred_azs:
+#         - "a"  # Primary
+#         - "c"  # Replica
 
-        # Cluster mode enabled (샤딩 구성) - 위 num_cache_clusters 대신 사용
-        # num_node_groups: 2
-        # replicas_per_node_group: 1
+#         # Cluster mode enabled (샤딩 구성) - 위 num_cache_clusters 대신 사용
+#         # num_node_groups: 2
+#         # replicas_per_node_group: 1
 
-        # HA 설정
-        automatic_failover_enabled: true
-        multi_az_enabled: true
+#         # HA 설정
+#         automatic_failover_enabled: true
+#         multi_az_enabled: true
 
-        # 암호화
-        at_rest_encryption_enabled: true
-        transit_encryption_enabled: true
-        transit_encryption_mode: "required"
-        # auth_token: ""  # 필요시 설정
-        # kms_key_id: ""  # 필요시 KMS ARN
+#         # 암호화
+#         at_rest_encryption_enabled: true
+#         transit_encryption_enabled: true
+#         transit_encryption_mode: "required"
+#         # auth_token: ""  # 필요시 설정
+#         # kms_key_id: ""  # 필요시 KMS ARN
 
-        # 유지보수
-        snapshot_retention_limit: 0
-        snapshot_window: "01:30-02:30"
-        maintenance_window: "fri:05:30-fri:06:30"
-        auto_minor_version_upgrade: false
-        apply_immediately: false
+#         # 유지보수
+#         snapshot_retention_limit: 0
+#         snapshot_window: "01:30-02:30"
+#         maintenance_window: "fri:05:30-fri:06:30"
+#         auto_minor_version_upgrade: false
+#         apply_immediately: false
 
-        # 참조
-        security_groups:
-        - "ec"
+#         # 참조
+#         security_groups:
+#         - "ec"
 
-        subnet_group:
-          subnets:
-          - "db"
-          description: "Subnet Group for Redis"
+#         subnet_group:
+#           subnets:
+#           - "db"
+#           description: "Subnet Group for Redis"
 
-        parameter_group:
-          family: "redis7"
-          description: "Parameter Group for Redis"
-          parameters:
-          # - name: "maxmemory-policy"
-          #   value: "volatile-lru"
+#         parameter_group:
+#           family: "redis7"
+#           description: "Parameter Group for Redis"
+#           parameters:
+#           # - name: "maxmemory-policy"
+#           #   value: "volatile-lru"
 
-    ############### Launch Templates ###############
-    # - name_optional: 이름 뒤에 추가할 문자열 (선택)
-    # - description: Launch Template 설명
-    # - ami_id: 사용자 정의 AMI ID (선택, 미지정시 EKS 최적화 AMI 사용)
-    # - instance_type: 인스턴스 타입 (선택, Node Group에서 지정 가능)
-    # - key_name: SSH 키 페어 이름 (선택)
-    # - ebs_optimized: EBS 최적화 활성화 (기본값: true)
-    # - monitoring_enabled: 상세 모니터링 활성화 (기본값: false)
-    # - update_default_version: 변경 시 기본 버전 업데이트 (기본값: true)
-    # - security_groups: 보안 그룹 설정 (ref와 ids 동시 사용 가능)
-    #     - ref: vpc.security_groups의 key 참조 (예: ["eks_node", "common"])
-    #     - ids: 직접 Security Group ID 입력 (예: ["sg-0123456789abcdef0"])
-    # - user_data: Base64 인코딩된 사용자 데이터 (선택)
-    # NOTE: EKS 커스텀 AMI 사용 시에는 node_groups의 custom_ami를 사용하세요.
-    #       custom_ami는 NodeConfig userdata를 자동 생성합니다.
-    # - block_device_mappings: 블록 디바이스 설정
-    #     - device_name: 디바이스 이름 (예: "/dev/xvda")
-    #     - ebs:
-    #         volume_size: 볼륨 크기 (GiB)
-    #         volume_type: 볼륨 타입 (gp3, gp2, io1 등, 기본값: gp3)
-    #         iops: IOPS (gp3, io1용)
-    #         throughput: 처리량 (gp3용, MiB/s)
-    #         encrypted: 암호화 여부 (기본값: true)
-    #         kms_key_id: KMS 키 ARN (선택)
-    #         delete_on_termination: 종료 시 삭제 (기본값: true)
-    # - metadata_options: 인스턴스 메타데이터 설정
-    #     - http_endpoint: 메타데이터 엔드포인트 (enabled/disabled, 기본값: enabled)
-    #     - http_tokens: IMDSv2 토큰 (required/optional, 기본값: required)
-    #     - http_put_response_hop_limit: hop limit (기본값: 2)
-    #     - instance_metadata_tags: 인스턴스 태그 메타데이터 (enabled/disabled, 기본값: disabled)
-    # - tag_specifications: 리소스별 태그 설정
-    #     - instance: 인스턴스 태그 맵
-    #     - volume: 볼륨 태그 맵
-    # launch_templates:
-    #   # 커스텀 AMI는 node_groups의 custom_ami에서 설정하는 것을 권장합니다.
-    #   # 외부 Launch Template이 필요한 경우에만 사용하세요.
-    #   eks_node:
-    #     name_optional:
-    #     description:
-    #     ami_id: "ami-0a998385ed9f45655"
-    #     ebs_optimized: false
-    #     monitoring_enabled: true
-    #     security_groups:
-    #       ref:
-    #       - "eks_node"
-    #     block_device_mappings:
-    #       device_name: "/dev/xvda"
-    #       ebs:
-    #         volume_size: 100
-    #         volume_type: "gp3"
-    #     metadata_options:
-    #       http_tokens: "required"
+#     ############### Launch Templates ###############
+#     # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+#     # - description: Launch Template 설명
+#     # - ami_id: 사용자 정의 AMI ID (선택, 미지정시 EKS 최적화 AMI 사용)
+#     # - instance_type: 인스턴스 타입 (선택, Node Group에서 지정 가능)
+#     # - key_name: SSH 키 페어 이름 (선택)
+#     # - ebs_optimized: EBS 최적화 활성화 (기본값: true)
+#     # - monitoring_enabled: 상세 모니터링 활성화 (기본값: false)
+#     # - update_default_version: 변경 시 기본 버전 업데이트 (기본값: true)
+#     # - security_groups: 보안 그룹 설정 (ref와 ids 동시 사용 가능)
+#     #     - ref: vpc.security_groups의 key 참조 (예: ["eks_node", "common"])
+#     #     - ids: 직접 Security Group ID 입력 (예: ["sg-0123456789abcdef0"])
+#     # - user_data: Base64 인코딩된 사용자 데이터 (선택)
+#     # NOTE: EKS 커스텀 AMI 사용 시에는 node_groups의 custom_ami를 사용하세요.
+#     #       custom_ami는 NodeConfig userdata를 자동 생성합니다.
+#     # - block_device_mappings: 블록 디바이스 설정
+#     #     - device_name: 디바이스 이름 (예: "/dev/xvda")
+#     #     - ebs:
+#     #         volume_size: 볼륨 크기 (GiB)
+#     #         volume_type: 볼륨 타입 (gp3, gp2, io1 등, 기본값: gp3)
+#     #         iops: IOPS (gp3, io1용)
+#     #         throughput: 처리량 (gp3용, MiB/s)
+#     #         encrypted: 암호화 여부 (기본값: true)
+#     #         kms_key_id: KMS 키 ARN (선택)
+#     #         delete_on_termination: 종료 시 삭제 (기본값: true)
+#     # - metadata_options: 인스턴스 메타데이터 설정
+#     #     - http_endpoint: 메타데이터 엔드포인트 (enabled/disabled, 기본값: enabled)
+#     #     - http_tokens: IMDSv2 토큰 (required/optional, 기본값: required)
+#     #     - http_put_response_hop_limit: hop limit (기본값: 2)
+#     #     - instance_metadata_tags: 인스턴스 태그 메타데이터 (enabled/disabled, 기본값: disabled)
+#     # - tag_specifications: 리소스별 태그 설정
+#     #     - instance: 인스턴스 태그 맵
+#     #     - volume: 볼륨 태그 맵
+#     # launch_templates:
+#     #   # 커스텀 AMI는 node_groups의 custom_ami에서 설정하는 것을 권장합니다.
+#     #   # 외부 Launch Template이 필요한 경우에만 사용하세요.
+#     #   eks_node:
+#     #     name_optional:
+#     #     description:
+#     #     ami_id: "ami-0a998385ed9f45655"
+#     #     ebs_optimized: false
+#     #     monitoring_enabled: true
+#     #     security_groups:
+#     #       ref:
+#     #       - "eks_node"
+#     #     block_device_mappings:
+#     #       device_name: "/dev/xvda"
+#     #       ebs:
+#     #         volume_size: 100
+#     #         volume_type: "gp3"
+#     #     metadata_options:
+#     #       http_tokens: "required"
 
-    ############### EKS ###############
-    # - name_optional: 이름 뒤에 추가할 문자열 (선택)
-    # - cluster_version: Kubernetes 버전 (예: "1.34")
-    # - cluster_role: EKS 클러스터 IAM Role (둘 중 하나만 사용)
-    #     - ref: iam.roles의 key 참조 (예: "eks_cluster")
-    #     - arn: 직접 ARN 입력 (예: "arn:aws:iam::123456789012:role/eks-cluster-role")
-    # - subnets: 클러스터가 사용할 subnet 타입 목록 (vpc.subnets에서 정의된 타입)
-    # - security_groups: 클러스터가 사용할 보안 그룹 (vpc.security_groups에서 정의된 이름)
-    # - endpoint_private_access: Private 엔드포인트 접근 활성화 (기본값: true)
-    # - endpoint_public_access: Public 엔드포인트 접근 활성화 (기본값: false)
-    # - public_access_cidrs: Public 엔드포인트 접근 CIDR 목록
-    # - service_ipv4_cidr: Kubernetes Service IP 대역 (예: "172.20.0.0/16")
-    # - ip_family: IP 패밀리 (ipv4, ipv6)
-    # - enabled_cluster_log_types: 활성화할 로그 타입 목록 (api, audit, authenticator, controllerManager, scheduler)
-    # - authentication_mode: 인증 모드 (CONFIG_MAP, API, API_AND_CONFIG_MAP)
-    # - bootstrap_cluster_creator_admin_permissions: 클러스터 생성자에게 관리자 권한 부여 (기본값: true)
-    # - encryption_config_key_arn: KMS 키 ARN (secrets 암호화용)
-    # - launch_templates: Launch Template 설정 (맵 형태)
-    #   - ami_id: AMI ID (예: "ami-0123456789abcdef0")
-    #   - instance_type: 인스턴스 타입 (예: "m7i.2xlarge")
-    #   - security_groups: 보안 그룹 참조 목록 (vpc.security_groups의 key)
-    #   - block_device: 블록 디바이스 설정
-    #       - device_name: 디바이스 이름 (예: "/dev/xvda")
-    #       - volume_size: 볼륨 크기 (GiB, 기본값: 50)
-    #       - volume_type: 볼륨 타입 (gp3, gp2, io1 등, 기본값: gp3)
-    #       - iops: IOPS (gp3, io1용)
-    #       - throughput: 처리량 (gp3용, MiB/s)
-    #       - encrypted: 암호화 여부 (기본값: true)
-    #       - delete_on_termination: 종료 시 삭제 (기본값: true)
-    #   - metadata_options: 인스턴스 메타데이터 설정
-    #       - http_endpoint: enabled/disabled (기본값: enabled)
-    #       - http_tokens: required/optional (기본값: required, IMDSv2)
-    #       - http_put_response_hop_limit: hop limit (기본값: 2)
-    #   - ebs_optimized: EBS 최적화 (기본값: null)
-    #   - monitoring_enabled: 상세 모니터링 (기본값: false)
-    #   - node_config: true면 EKS NodeConfig userdata 자동 생성 (기본값: false)
-    # - node_groups: 노드 그룹 설정 (맵 형태)
-    #   - name_optional: 노드 그룹 이름 뒤에 추가할 문자열
-    #   - node_role: 노드 그룹 IAM Role (둘 중 하나만 사용)
-    #       - ref: iam.roles의 key 참조 (예: "eks_node")
-    #       - arn: 직접 ARN 입력 (예: "arn:aws:iam::123456789012:role/eks-node-role")
-    #   - subnets: 노드 그룹이 사용할 subnet 타입 목록
-    #   - instance_types: EC2 인스턴스 타입 목록 (launch_template 미사용 시)
-    #   - ami_type: AMI 타입 (launch_template 미사용 시)
-    #   - capacity_type: 용량 타입 (ON_DEMAND, SPOT)
-    #   - disk_size: 디스크 크기 (GiB) - launch_template 미사용 시
-    #   - launch_template: launch_templates의 key 참조 (예: "template_1")
-    #   - scaling: 스케일링 설정 (desired_size, min_size, max_size)
-    #   - update_config: 업데이트 설정 (max_unavailable 또는 max_unavailable_percentage)
-    #   - labels: Kubernetes 레이블 (맵)
-    #   - taints: Kubernetes 테인트 (리스트)
-    # - addons: EKS 애드온 설정 (맵 형태)
-    #   - version: 애드온 버전 (빈 문자열 = 기본 버전)
-    #   - resolve_conflicts_on_create: 생성 시 충돌 해결 (NONE, OVERWRITE)
-    #   - resolve_conflicts_on_update: 업데이트 시 충돌 해결 (NONE, OVERWRITE, PRESERVE)
-    #   - service_account_role_arn: 서비스 계정 IAM Role ARN
-    #   - configuration_values: 애드온 설정 값 (JSON 문자열)
-    #   - preserve_on_delete: 삭제 시 보존 여부
-    eks:
-      mirae_prd:
-        name_optional: ""
-        cluster_version: "1.34"
-        # IAM Role 설정 (둘 중 하나만 사용)
-        cluster_role:
-          ref: "eks_cluster"  # iam.roles의 key 참조
-          arn:                # 직접 ARN 입력
+#     ############### EKS ###############
+#     # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+#     # - cluster_version: Kubernetes 버전 (예: "1.34")
+#     # - cluster_role: EKS 클러스터 IAM Role (둘 중 하나만 사용)
+#     #     - ref: iam.roles의 key 참조 (예: "eks_cluster")
+#     #     - arn: 직접 ARN 입력 (예: "arn:aws:iam::123456789012:role/eks-cluster-role")
+#     # - subnets: 클러스터가 사용할 subnet 타입 목록 (vpc.subnets에서 정의된 타입)
+#     # - security_groups: 클러스터가 사용할 보안 그룹 (vpc.security_groups에서 정의된 이름)
+#     # - endpoint_private_access: Private 엔드포인트 접근 활성화 (기본값: true)
+#     # - endpoint_public_access: Public 엔드포인트 접근 활성화 (기본값: false)
+#     # - public_access_cidrs: Public 엔드포인트 접근 CIDR 목록
+#     # - service_ipv4_cidr: Kubernetes Service IP 대역 (예: "172.20.0.0/16")
+#     # - ip_family: IP 패밀리 (ipv4, ipv6)
+#     # - enabled_cluster_log_types: 활성화할 로그 타입 목록 (api, audit, authenticator, controllerManager, scheduler)
+#     # - authentication_mode: 인증 모드 (CONFIG_MAP, API, API_AND_CONFIG_MAP)
+#     # - bootstrap_cluster_creator_admin_permissions: 클러스터 생성자에게 관리자 권한 부여 (기본값: true)
+#     # - encryption_config_key_arn: KMS 키 ARN (secrets 암호화용)
+#     # - launch_templates: Launch Template 설정 (맵 형태)
+#     #   - ami_id: AMI ID (예: "ami-0123456789abcdef0")
+#     #   - instance_type: 인스턴스 타입 (예: "m7i.2xlarge")
+#     #   - security_groups: 보안 그룹 참조 목록 (vpc.security_groups의 key)
+#     #   - block_device: 블록 디바이스 설정
+#     #       - device_name: 디바이스 이름 (예: "/dev/xvda")
+#     #       - volume_size: 볼륨 크기 (GiB, 기본값: 50)
+#     #       - volume_type: 볼륨 타입 (gp3, gp2, io1 등, 기본값: gp3)
+#     #       - iops: IOPS (gp3, io1용)
+#     #       - throughput: 처리량 (gp3용, MiB/s)
+#     #       - encrypted: 암호화 여부 (기본값: true)
+#     #       - delete_on_termination: 종료 시 삭제 (기본값: true)
+#     #   - metadata_options: 인스턴스 메타데이터 설정
+#     #       - http_endpoint: enabled/disabled (기본값: enabled)
+#     #       - http_tokens: required/optional (기본값: required, IMDSv2)
+#     #       - http_put_response_hop_limit: hop limit (기본값: 2)
+#     #   - ebs_optimized: EBS 최적화 (기본값: null)
+#     #   - monitoring_enabled: 상세 모니터링 (기본값: false)
+#     #   - node_config: true면 EKS NodeConfig userdata 자동 생성 (기본값: false)
+#     # - node_groups: 노드 그룹 설정 (맵 형태)
+#     #   - name_optional: 노드 그룹 이름 뒤에 추가할 문자열
+#     #   - node_role: 노드 그룹 IAM Role (둘 중 하나만 사용)
+#     #       - ref: iam.roles의 key 참조 (예: "eks_node")
+#     #       - arn: 직접 ARN 입력 (예: "arn:aws:iam::123456789012:role/eks-node-role")
+#     #   - subnets: 노드 그룹이 사용할 subnet 타입 목록
+#     #   - instance_types: EC2 인스턴스 타입 목록 (launch_template 미사용 시)
+#     #   - ami_type: AMI 타입 (launch_template 미사용 시)
+#     #   - capacity_type: 용량 타입 (ON_DEMAND, SPOT)
+#     #   - disk_size: 디스크 크기 (GiB) - launch_template 미사용 시
+#     #   - launch_template: launch_templates의 key 참조 (예: "template_1")
+#     #   - scaling: 스케일링 설정 (desired_size, min_size, max_size)
+#     #   - update_config: 업데이트 설정 (max_unavailable 또는 max_unavailable_percentage)
+#     #   - labels: Kubernetes 레이블 (맵)
+#     #   - taints: Kubernetes 테인트 (리스트)
+#     # - addons: EKS 애드온 설정 (맵 형태)
+#     #   - version: 애드온 버전 (빈 문자열 = 기본 버전)
+#     #   - resolve_conflicts_on_create: 생성 시 충돌 해결 (NONE, OVERWRITE)
+#     #   - resolve_conflicts_on_update: 업데이트 시 충돌 해결 (NONE, OVERWRITE, PRESERVE)
+#     #   - service_account_role_arn: 서비스 계정 IAM Role ARN
+#     #   - configuration_values: 애드온 설정 값 (JSON 문자열)
+#     #   - preserve_on_delete: 삭제 시 보존 여부
+#     eks:
+#       mirae_prd:
+#         name_optional: ""
+#         cluster_version: "1.34"
+#         # IAM Role 설정 (둘 중 하나만 사용)
+#         cluster_role:
+#           ref: "eks_cluster"  # iam.roles의 key 참조
+#           arn:                # 직접 ARN 입력
 
-        # 참조
-        security_groups:
-        - "eks_cluster"
+#         # 참조
+#         security_groups:
+#         - "eks_cluster"
         
-        subnets:
-        - "vpce"
+#         subnets:
+#         - "vpce"
         
-        # 엔드포인트 설정
-        endpoint_private_access: true
-        endpoint_public_access: false
-        # public_access_cidrs:
-        # - "0.0.0.0/0"
+#         # 엔드포인트 설정
+#         endpoint_private_access: true
+#         endpoint_public_access: false
+#         # public_access_cidrs:
+#         # - "0.0.0.0/0"
 
-        # 네트워크 설정
-        service_ipv4_cidr: "172.20.0.0/16"
-        ip_family: "ipv4"
+#         # 네트워크 설정
+#         service_ipv4_cidr: "172.20.0.0/16"
+#         ip_family: "ipv4"
 
-        # 로깅
-        enabled_cluster_log_types:
-        - "api"
-        - "audit"
-        - "authenticator"
-        - "controllerManager"
-        - "scheduler"
+#         # 로깅
+#         enabled_cluster_log_types:
+#         - "api"
+#         - "audit"
+#         - "authenticator"
+#         - "controllerManager"
+#         - "scheduler"
 
-        # 인증
-        authentication_mode: "API"
-        bootstrap_cluster_creator_admin_permissions: true
+#         # 인증
+#         authentication_mode: "API"
+#         bootstrap_cluster_creator_admin_permissions: true
 
-        # 암호화 (선택)
-        encryption_config_key_arn:
+#         # 암호화 (선택)
+#         encryption_config_key_arn:
 
-        # 업그레이드 정책
-        # - upgrade_policy: 클러스터 업그레이드 지원 정책
-        #     - support_type: STANDARD (기본값, 14개월 지원) 또는 EXTENDED (26개월 연장 지원, 추가 비용 발생)
-        upgrade_policy:
-          support_type: "STANDARD"
+#         # 업그레이드 정책
+#         # - upgrade_policy: 클러스터 업그레이드 지원 정책
+#         #     - support_type: STANDARD (기본값, 14개월 지원) 또는 EXTENDED (26개월 연장 지원, 추가 비용 발생)
+#         upgrade_policy:
+#           support_type: "STANDARD"
 
-        launch_templates:
-          template_1:
-            ami_id: "ami-0da4c77ab0cf68b29"
-            instance_type:
-            security_groups:
-            - "eks_node"
-            block_device:
-              device_name: "/dev/xvda"
-              volume_size: 100
-              volume_type: "gp3"
-              delete_on_termination: true
-            ebs_optimized:
-            monitoring_enabled: true
-            metadata_options:
-            node_config: true
+#         launch_templates:
+#           template_1:
+#             ami_id: "ami-0da4c77ab0cf68b29"
+#             instance_type:
+#             security_groups:
+#             - "eks_node"
+#             block_device:
+#               device_name: "/dev/xvda"
+#               volume_size: 100
+#               volume_type: "gp3"
+#               delete_on_termination: true
+#             ebs_optimized:
+#             monitoring_enabled: true
+#             metadata_options:
+#             node_config: true
 
-        ############### Node Groups ###############
-        # - node_repair_enabled: 노드 자동 복구 활성화 여부 (기본값: true)
-        #   false로 설정하면 비정상 노드 자동 복구 비활성화
-        node_groups:
-          ng_1:
-            launch_template: "template_1"
+#         ############### Node Groups ###############
+#         # - node_repair_enabled: 노드 자동 복구 활성화 여부 (기본값: true)
+#         #   false로 설정하면 비정상 노드 자동 복구 비활성화
+#         node_groups:
+#           ng_1:
+#             launch_template: "template_1"
 
-            # 노드 자동 복구 (기본값: true, false로 설정하면 비활성화)
-            node_repair_enabled: false
+#             # 노드 자동 복구 (기본값: true, false로 설정하면 비활성화)
+#             node_repair_enabled: false
 
-            # IAM Role 설정 (둘 중 하나만 사용)
-            node_role:
-              ref: "eks_node"  # iam.roles의 key 참조
-              arn:             # 직접 ARN 입력
-            subnets:
-            - "eksng"
-            instance_types:
-            - "m7i.2xlarge"
-            capacity_type: "ON_DEMAND"
+#             # IAM Role 설정 (둘 중 하나만 사용)
+#             node_role:
+#               ref: "eks_node"  # iam.roles의 key 참조
+#               arn:             # 직접 ARN 입력
+#             subnets:
+#             - "eksng"
+#             instance_types:
+#             - "m7i.2xlarge"
+#             capacity_type: "ON_DEMAND"
 
-            scaling:
-              desired_size: 1
-              min_size: 1
-              max_size: 2
-            update_config:
-              max_unavailable: 1
+#             scaling:
+#               desired_size: 1
+#               min_size: 1
+#               max_size: 2
+#             update_config:
+#               max_unavailable: 1
 
-        ############### Access Entries ###############
-        # EKS 클러스터에 대한 접근 권한 설정
-        # - principal_arn: IAM 보안 주체 ARN 설정
-        #     - ref: iam.roles의 key 참조 (예: "eks_bastion")
-        #     - arn: 직접 ARN 입력
-        # - type: 접근 유형 (STANDARD, FARGATE_LINUX, EC2_LINUX, EC2_WINDOWS)
-        # - kubernetes_groups: Kubernetes 그룹 목록 (예: ["master"])
-        # - access_policies: 접근 정책 목록
-        #     - policy: 정책 이름 (AmazonEKSClusterAdminPolicy, AmazonEKSAdminPolicy, AmazonEKSEditPolicy, AmazonEKSViewPolicy)
-        #     - access_scope:
-        #         - type: cluster 또는 namespace
-        #         - namespaces: namespace 목록 (type이 namespace일 때만)
-        access_entries:
-          bastion:
-            principal_arn:
-              ref: "eks_bastion"  # iam.roles 참조
-              arn:                # 직접 ARN 입력
-            type: "STANDARD"
-            kubernetes_groups:
-            - "master"
-            access_policies:
-            - policy: "AmazonEKSClusterAdminPolicy"
-              access_scope:
-                type: "cluster"
-                namespaces:
+#         ############### Access Entries ###############
+#         # EKS 클러스터에 대한 접근 권한 설정
+#         # - principal_arn: IAM 보안 주체 ARN 설정
+#         #     - ref: iam.roles의 key 참조 (예: "eks_bastion")
+#         #     - arn: 직접 ARN 입력
+#         # - type: 접근 유형 (STANDARD, FARGATE_LINUX, EC2_LINUX, EC2_WINDOWS)
+#         # - kubernetes_groups: Kubernetes 그룹 목록 (예: ["master"])
+#         # - access_policies: 접근 정책 목록
+#         #     - policy: 정책 이름 (AmazonEKSClusterAdminPolicy, AmazonEKSAdminPolicy, AmazonEKSEditPolicy, AmazonEKSViewPolicy)
+#         #     - access_scope:
+#         #         - type: cluster 또는 namespace
+#         #         - namespaces: namespace 목록 (type이 namespace일 때만)
+#         access_entries:
+#           bastion:
+#             principal_arn:
+#               ref: "eks_bastion"  # iam.roles 참조
+#               arn:                # 직접 ARN 입력
+#             type: "STANDARD"
+#             kubernetes_groups:
+#             - "master"
+#             access_policies:
+#             - policy: "AmazonEKSClusterAdminPolicy"
+#               access_scope:
+#                 type: "cluster"
+#                 namespaces:
 
-        ############### Addons ###############
-        # EKS 관리형 애드온 설정
-        # - version: 애드온 버전 (빈 문자열 = 클러스터 버전에 맞는 기본 버전)
-        # - resolve_conflicts_on_create: 생성 시 충돌 해결 (NONE, OVERWRITE)
-        # - resolve_conflicts_on_update: 업데이트 시 충돌 해결 (NONE, OVERWRITE, PRESERVE)
-        # - service_account_role: 서비스 계정 IAM Role (둘 중 하나만 사용)
-        #     - ref: iam.roles의 key 참조 (상대참조)
-        #     - arn: 직접 ARN 입력
-        # - configuration_values: 애드온 설정 값 (JSON 문자열)
-        # - preserve_on_delete: 삭제 시 보존 여부
-        # NOTE: cert-manager는 EKS 관리형 애드온이 아니므로 Helm으로 별도 설치 필요
-        addons:
-          vpc-cni:
-            version: ""
-            resolve_conflicts_on_create: "OVERWRITE"
-            resolve_conflicts_on_update: "OVERWRITE"
-            service_account_role:
-              ref: "eks_irsa_vpc_cni"  # iam.roles 참조 (상대참조)
-              arn:                     # 직접 ARN 입력
-            configuration_values:
-            preserve_on_delete: false
-          coredns:
-            version: ""
-            resolve_conflicts_on_create: "OVERWRITE"
-            resolve_conflicts_on_update: "OVERWRITE"
-            service_account_role:
-              ref:   # iam.roles 참조 (상대참조)
-              arn:   # 직접 ARN 입력
-            configuration_values:
-            preserve_on_delete: false
-          kube-proxy:
-            version: ""
-            resolve_conflicts_on_create: "OVERWRITE"
-            resolve_conflicts_on_update: "OVERWRITE"
-            service_account_role:
-              ref:   # iam.roles 참조 (상대참조)
-              arn:   # 직접 ARN 입력
-            configuration_values:
-            preserve_on_delete: false
-          metrics-server:
-            version: ""
-            resolve_conflicts_on_create: "OVERWRITE"
-            resolve_conflicts_on_update: "OVERWRITE"
-            service_account_role:
-              ref:   # iam.roles 참조 (상대참조)
-              arn:   # 직접 ARN 입력
-            configuration_values:
-            preserve_on_delete: false
-          aws-efs-csi-driver:
-            version: ""
-            resolve_conflicts_on_create: "OVERWRITE"
-            resolve_conflicts_on_update: "OVERWRITE"
-            service_account_role:
-              ref: "eks_irsa_efs"  # iam.roles 참조 (상대참조)
-              arn:                 # 직접 ARN 입력
-            configuration_values:
-            preserve_on_delete: false
+#         ############### Addons ###############
+#         # EKS 관리형 애드온 설정
+#         # - version: 애드온 버전 (빈 문자열 = 클러스터 버전에 맞는 기본 버전)
+#         # - resolve_conflicts_on_create: 생성 시 충돌 해결 (NONE, OVERWRITE)
+#         # - resolve_conflicts_on_update: 업데이트 시 충돌 해결 (NONE, OVERWRITE, PRESERVE)
+#         # - service_account_role: 서비스 계정 IAM Role (둘 중 하나만 사용)
+#         #     - ref: iam.roles의 key 참조 (상대참조)
+#         #     - arn: 직접 ARN 입력
+#         # - configuration_values: 애드온 설정 값 (JSON 문자열)
+#         # - preserve_on_delete: 삭제 시 보존 여부
+#         # NOTE: cert-manager는 EKS 관리형 애드온이 아니므로 Helm으로 별도 설치 필요
+#         addons:
+#           vpc-cni:
+#             version: ""
+#             resolve_conflicts_on_create: "OVERWRITE"
+#             resolve_conflicts_on_update: "OVERWRITE"
+#             service_account_role:
+#               ref: "eks_irsa_vpc_cni"  # iam.roles 참조 (상대참조)
+#               arn:                     # 직접 ARN 입력
+#             configuration_values:
+#             preserve_on_delete: false
+#           coredns:
+#             version: ""
+#             resolve_conflicts_on_create: "OVERWRITE"
+#             resolve_conflicts_on_update: "OVERWRITE"
+#             service_account_role:
+#               ref:   # iam.roles 참조 (상대참조)
+#               arn:   # 직접 ARN 입력
+#             configuration_values:
+#             preserve_on_delete: false
+#           kube-proxy:
+#             version: ""
+#             resolve_conflicts_on_create: "OVERWRITE"
+#             resolve_conflicts_on_update: "OVERWRITE"
+#             service_account_role:
+#               ref:   # iam.roles 참조 (상대참조)
+#               arn:   # 직접 ARN 입력
+#             configuration_values:
+#             preserve_on_delete: false
+#           metrics-server:
+#             version: ""
+#             resolve_conflicts_on_create: "OVERWRITE"
+#             resolve_conflicts_on_update: "OVERWRITE"
+#             service_account_role:
+#               ref:   # iam.roles 참조 (상대참조)
+#               arn:   # 직접 ARN 입력
+#             configuration_values:
+#             preserve_on_delete: false
+#           aws-efs-csi-driver:
+#             version: ""
+#             resolve_conflicts_on_create: "OVERWRITE"
+#             resolve_conflicts_on_update: "OVERWRITE"
+#             service_account_role:
+#               ref: "eks_irsa_efs"  # iam.roles 참조 (상대참조)
+#               arn:                 # 직접 ARN 입력
+#             configuration_values:
+#             preserve_on_delete: false
 
-  ############### IAM ###############
-  # - roles: IAM Role 목록
-  #   - name: Role 이름 직접 지정 (지정 시 name_optional 무시)
-  #   - name_optional: 이름 뒤에 추가할 문자열 (name 미지정 시 사용)
-  #   - description: Role 설명
-  #   - trust_policy: 신뢰관계 정책 설정
-  #       - file: JSON 파일명 (iam 폴더 기준)
-  #       - is_oidc_template: OIDC 템플릿 여부 (true면 templatefile 사용)
-  #       - oidc_provider: OIDC Provider 참조 (is_oidc_template: true일 때, oidc_providers의 key)
-  #       - service_account_namespace: Service Account 네임스페이스 (is_oidc_template: true일 때)
-  #       - service_account_name: Service Account 이름 (is_oidc_template: true일 때)
-  #   - max_session_duration: 최대 세션 시간 (초, 기본값: 3600)
-  #   - path: IAM 경로 (기본값: "/")
-  #   - permissions_boundary: Permissions Boundary ARN (선택)
-  #   - force_detach_policies: 삭제 시 정책 강제 분리 (기본값: false)
-  #   - managed_policy_arns: 연결할 AWS 관리형/고객 관리형 정책 ARN 목록
-  #   - inline_policies: 인라인 정책 목록
-  #     - name_optional: 정책 이름 뒤에 추가할 문자열
-  #       file: 정책 JSON 파일명 (iam 폴더 기준)
-  #   - create_instance_profile: true면 동일 이름으로 Instance Profile 자동 생성 (기본값: false)
-  # - OIDC Provider 설정 (GitHub Actions, GitLab, EKS 등)
-  #   - eks_cluster: true면 EKS OIDC Provider (url에 eks.<key>의 key 지정)
-  #   - url: OIDC Provider URL (eks_cluster: true면 EKS 클러스터 key)
-  #   - client_id_list: Client ID 목록
-  #   - thumbprint_list: Thumbprint 목록 (eks_cluster: true면 자동)
-  iam:
-    roles:
-      eks_cluster:
-        name: "AmazonEKSClusterRole"
-        name_optional:
-        description:
-        trust_policy:
-          file: "eks-cluster-trust-policy.json"
-          is_oidc_template: false
-        path:
-        max_session_duration:
-        create_instance_profile:
-        permissions_boundary:
-        force_detach_policies:
-        managed_policy_arns:
-        - "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-        inline_policies:
-      eks_node:
-        name: "AmazonEKSNodeRole"
-        name_optional:
-        description:
-        trust_policy:
-          file: "eks-node-trust-policy.json"
-          is_oidc_template: false
-        path:
-        max_session_duration:
-        create_instance_profile: true
-        permissions_boundary:
-        force_detach_policies:
-        managed_policy_arns:
-        - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-        - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-        inline_policies:
-      eks_irsa_vpc_cni:
-        name:
-        name_optional: "eks-irsa-vpccni"
-        description:
-        trust_policy:
-          file: "eks-addon-vpc-cni-trust-policy.json"
-          is_oidc_template: true
-          oidc_provider: "eks_main"
-          service_account_namespace: "kube-system"
-          service_account_name: "aws-node"
-        path:
-        max_session_duration:
-        create_instance_profile: false
-        permissions_boundary:
-        force_detach_policies:
-        managed_policy_arns:
-        - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-        inline_policies:
-      eks_irsa_efs:
-        name:
-        name_optional: "eks-irsa-efs"
-        description:
-        trust_policy:
-          file: "eks-addon-vpc-cni-trust-policy.json"
-          is_oidc_template: true
-          oidc_provider: "eks_main"
-          service_account_namespace: "kube-system"
-          service_account_name: "efs-csi-controller-sa"
-        path:
-        max_session_duration:
-        create_instance_profile: false
-        permissions_boundary:
-        force_detach_policies:
-        managed_policy_arns:
-        - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-        inline_policies:
-        - name_optional: "eks-irsa-efs"
-          file: "eks-addon-efs-policy.json"
-      eks_bastion:
-        name:
-        name_optional: "eks-bastion"
-        description:
-        trust_policy:
-          file: "eks-bastion-trust-policy.json"
-          is_oidc_template: false
-        path:
-        max_session_duration:
-        create_instance_profile: true
-        permissions_boundary:
-        force_detach_policies:
-        managed_policy_arns:
-        - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-        inline_policies:
-        - name_optional: "eks-bastion"
-          file: "eks-bastion-policy.json"
-    ############### OIDC Providers ###############
-    oidc_providers:
-      eks_main:
-        eks_cluster: true
-        url: "mirae_prd"
-        client_id_list:
-        - "sts.amazonaws.com"
-        thumbprint_list:
+#   ############### IAM ###############
+#   # - roles: IAM Role 목록
+#   #   - name: Role 이름 직접 지정 (지정 시 name_optional 무시)
+#   #   - name_optional: 이름 뒤에 추가할 문자열 (name 미지정 시 사용)
+#   #   - description: Role 설명
+#   #   - trust_policy: 신뢰관계 정책 설정
+#   #       - file: JSON 파일명 (iam 폴더 기준)
+#   #       - is_oidc_template: OIDC 템플릿 여부 (true면 templatefile 사용)
+#   #       - oidc_provider: OIDC Provider 참조 (is_oidc_template: true일 때, oidc_providers의 key)
+#   #       - service_account_namespace: Service Account 네임스페이스 (is_oidc_template: true일 때)
+#   #       - service_account_name: Service Account 이름 (is_oidc_template: true일 때)
+#   #   - max_session_duration: 최대 세션 시간 (초, 기본값: 3600)
+#   #   - path: IAM 경로 (기본값: "/")
+#   #   - permissions_boundary: Permissions Boundary ARN (선택)
+#   #   - force_detach_policies: 삭제 시 정책 강제 분리 (기본값: false)
+#   #   - managed_policy_arns: 연결할 AWS 관리형/고객 관리형 정책 ARN 목록
+#   #   - inline_policies: 인라인 정책 목록
+#   #     - name_optional: 정책 이름 뒤에 추가할 문자열
+#   #       file: 정책 JSON 파일명 (iam 폴더 기준)
+#   #   - create_instance_profile: true면 동일 이름으로 Instance Profile 자동 생성 (기본값: false)
+#   # - OIDC Provider 설정 (GitHub Actions, GitLab, EKS 등)
+#   #   - eks_cluster: true면 EKS OIDC Provider (url에 eks.<key>의 key 지정)
+#   #   - url: OIDC Provider URL (eks_cluster: true면 EKS 클러스터 key)
+#   #   - client_id_list: Client ID 목록
+#   #   - thumbprint_list: Thumbprint 목록 (eks_cluster: true면 자동)
+#   iam:
+#     roles:
+#       eks_cluster:
+#         name: "AmazonEKSClusterRole"
+#         name_optional:
+#         description:
+#         trust_policy:
+#           file: "eks-cluster-trust-policy.json"
+#           is_oidc_template: false
+#         path:
+#         max_session_duration:
+#         create_instance_profile:
+#         permissions_boundary:
+#         force_detach_policies:
+#         managed_policy_arns:
+#         - "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+#         inline_policies:
+#       eks_node:
+#         name: "AmazonEKSNodeRole"
+#         name_optional:
+#         description:
+#         trust_policy:
+#           file: "eks-node-trust-policy.json"
+#           is_oidc_template: false
+#         path:
+#         max_session_duration:
+#         create_instance_profile: true
+#         permissions_boundary:
+#         force_detach_policies:
+#         managed_policy_arns:
+#         - "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+#         - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+#         - "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+#         inline_policies:
+#       eks_irsa_vpc_cni:
+#         name:
+#         name_optional: "eks-irsa-vpccni"
+#         description:
+#         trust_policy:
+#           file: "eks-addon-vpc-cni-trust-policy.json"
+#           is_oidc_template: true
+#           oidc_provider: "eks_main"
+#           service_account_namespace: "kube-system"
+#           service_account_name: "aws-node"
+#         path:
+#         max_session_duration:
+#         create_instance_profile: false
+#         permissions_boundary:
+#         force_detach_policies:
+#         managed_policy_arns:
+#         - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+#         inline_policies:
+#       eks_irsa_efs:
+#         name:
+#         name_optional: "eks-irsa-efs"
+#         description:
+#         trust_policy:
+#           file: "eks-addon-vpc-cni-trust-policy.json"
+#           is_oidc_template: true
+#           oidc_provider: "eks_main"
+#           service_account_namespace: "kube-system"
+#           service_account_name: "efs-csi-controller-sa"
+#         path:
+#         max_session_duration:
+#         create_instance_profile: false
+#         permissions_boundary:
+#         force_detach_policies:
+#         managed_policy_arns:
+#         - "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+#         inline_policies:
+#         - name_optional: "eks-irsa-efs"
+#           file: "eks-addon-efs-policy.json"
+#       eks_bastion:
+#         name:
+#         name_optional: "eks-bastion"
+#         description:
+#         trust_policy:
+#           file: "eks-bastion-trust-policy.json"
+#           is_oidc_template: false
+#         path:
+#         max_session_duration:
+#         create_instance_profile: true
+#         permissions_boundary:
+#         force_detach_policies:
+#         managed_policy_arns:
+#         - "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+#         inline_policies:
+#         - name_optional: "eks-bastion"
+#           file: "eks-bastion-policy.json"
+#     ############### OIDC Providers ###############
+#     oidc_providers:
+#       eks_main:
+#         eks_cluster: true
+#         url: "mirae_prd"
+#         client_id_list:
+#         - "sts.amazonaws.com"
+#         thumbprint_list:
