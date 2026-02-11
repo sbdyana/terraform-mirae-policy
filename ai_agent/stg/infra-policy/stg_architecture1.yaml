@@ -1,0 +1,342 @@
+############### VPC ###############
+infra:
+  vpc:
+    # VPC CIDR
+    cidr: &vpc_cidr "10.244.0.0/19"
+
+    ############### Subnet ###############
+    # 타입별 서브넷 정의 [att, com, db, eksng, lb, vpce]
+    # - subnet: 서브넷 마커 (값 없음)
+    # - zone: 가용영역 (a, c)
+    subnets:
+      att:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      com:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      db:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      eksng:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      lb:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      vpce:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+
+    ############### Route Table ###############
+    # 타입별 라우트 테이블 정의 [att, com, db, eksng, lb, vpce]
+    # - route_table: 라우트 테이블 마커 (값 없음)
+    # - routes: 라우트 목록
+    #   - route:
+    #       type: 라우트 타입 (CIDR, PrefixList 등)
+    #       destination: 목적지 CIDR
+    #       target: 타겟 (local, nat-gateway, internet-gateway 등)
+    route_tables:
+      att:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      com:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      db:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      eksng:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      lb:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      vpce:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+
+    security_groups:
+      vpce:
+        name_optional: ""
+        rules:
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 443
+          to_port: 443
+          description: "test" 
+      rds:
+        name_optional: "aurora-postgres"
+        rules:
+        - type: "inbound"
+          cidr: "10.241.4.0/24"
+          protocol: "tcp"
+          from_port: 5432
+          to_port: 5432
+          description: "Ingress Bastion (Temp)"
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 5432
+          to_port: 5432
+          description: "Aurora PostgreSQL"  
+        - type: "outbound"
+          cidr: "0.0.0.0/0"
+          protocol: "-1"
+          description: ""
+        - type: "outbound"  
+          cidr: "::/0"   # IPv6 outbound rule needed
+          protocol: "-1"
+          description: ""
+      efs:
+        name_optional: ""
+        rules:
+        - type: "inbound"
+          cidr: "10.244.0.0/16"
+          protocol: "tcp"
+          from_port: 2049
+          to_port: 2049
+          description: "NFS"
+        - type: "outbound"
+          cidr: "0.0.0.0/0"
+          protocol: "-1"
+          description: "Outbound allow all for EFS"
+        # - type: "outbound"  
+        #   cidr: "::/0"   # IPv6 outbound rule needed
+        #   protocol: "-1"
+        #   description: ""
+        
+    # vpc_endpoints:
+    #   s3:
+    #     route_tables:
+    #     - "com"
+    #     - "eksng"
+    #     - "lb"
+    #     subnets:
+    #     security_groups:
+    #   ssm:
+    #     route_tables:
+    #     subnets:
+    #     - "vpce"
+    #     security_groups:
+    #     - "vpce"
+    #   ssmmessages:
+    #     route_tables:
+    #     subnets:
+    #     - "vpce"
+    #     security_groups:
+    #     - "vpce"
+
+  ############### RDS Aurora ###############
+  # rds_auroras 리스트로 여러 세트를 정의
+  # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+  # - family: 파라미터 그룹 패밀리 (예: aurora-postgresql17)
+  # - type: cluster 또는 instance
+  # - engine: aurora-postgresql 또는 aurora-mysql
+  # - engine_version: 엔진 버전 (예: "17.4")
+  # - database_name: 초기 DB 이름
+  # - master_username / master_password: 마스터 계정
+  # - port: 포트
+  # - subnet_group_name: subnet_groups 키 참조
+  # - cluster_parameter_group_name: parameter_groups(type=cluster) 키 참조
+  # - instance_parameter_group_name: parameter_groups(type=instance) 키 참조
+  # - availability_zones: ["a","c"] 처럼 리전 suffix
+  # - security_groups: vpc.security_groups 키 참조
+  # - storage_encrypted: 저장 암호화 여부
+  # - kms_key_id: KMS ARN
+  # - deletion_protection: 삭제 방지
+  # - skip_final_snapshot: 삭제 시 최종 스냅샷 생략 여부
+  # - backup_retention_period: 백업 보존 기간(일)
+  # - preferred_backup_window: 백업 윈도우 (예: "18:29-18:59")
+  # - preferred_maintenance_window: 유지보수 윈도우 (예: "sat:16:49-sat:17:19")
+  # - allow_major_version_upgrade: 메이저 업그레이드 허용
+  # - instance_class: 인스턴스 타입 (예: db.r7i.xlarge)
+  # - availability_zone: 단일 AZ ("a" or "c")
+  # - promotion_tier: 장애조치 우선순위
+  # - auto_minor_version_upgrade: 자동 마이너 업그레이드
+  rds_auroras:
+    # DEV
+    - name_optional: "aurora-postgres" # aurora-postgres
+      # 서브넷 그룹
+      subnet_groups:
+        - rds_subnets:
+          - "db"
+      # 파라미터 그룹
+      parameter_groups:
+        cpg:
+          family: "aurora-postgresql17"
+          type: "cluster"
+        pg:
+          family: "aurora-postgresql17"
+          type: "instance"
+
+      # 데이터베이스 기본 설정
+      clusters:
+        aurora_postgres:
+          engine: "aurora-postgresql"
+          engine_version: "17.4"
+          master_username: "postgres"
+          master_password: "postgres"
+          port: 5432
+          # 참조
+          subnet_group_name: "db"
+          cluster_parameter_group_name: "cpg"
+          instance_parameter_group_name: "pg"
+          availability_zones:
+          - "a"
+          security_groups:
+          - "rds"
+          # 암호화
+          #storage_encrypted: true
+          kms_key_id: "arn:aws:kms:ap-northeast-2:070839874981:key/983452cf-276f-4d56-ae73-3bf4a9f4ae21"
+          # 유지보수
+          skip_final_snapshot: true # UI상에서는 false
+          backup_retention_period: 1
+          preferred_backup_window: "18:29-18:59" 
+          preferred_maintenance_window: "sat:16:49-sat:17:19"
+
+      # 클러스터 인스턴스 수 = 레플리카 수 결정
+      # 1개면 Writer만 생성, 2개 이상이면 Reader 추가
+      cluster_instances:
+        aurora_postgres_01:
+          instance_class: "db.r7i.large"
+          availability_zone: "a"
+          
+        # # PRD
+    # - name_optional: "prd" # aurora-postgres
+    #   # 서브넷 그룹
+    #   subnet_groups:
+    #     - rds_subnets:
+    #       - "db"
+    #   # 파라미터 그룹
+    #   parameter_groups:
+    #     cpg:
+    #       family: "aurora-postgresql17"
+    #       type: "cluster"
+    #     pg:
+    #       family: "aurora-postgresql17"
+    #       type: "instance"
+    #   # 데이터베이스 기본 설정
+    #   clusters:
+    #     aurora_postgres:
+    #       engine: "aurora-postgresql"
+    #       engine_version: "17.4"
+    #       master_username: "postgres"
+    #       master_password: "postgres"
+    #       port: 5432
+
+    #       # 참조
+    #       subnet_group_name: "db"
+    #       cluster_parameter_group_name: "cpg"
+    #       instance_parameter_group_name: "pg"
+
+    #       availability_zones:
+    #       - "a"
+    #       - "c"
+    #       security_groups:
+    #       - "rds"
+
+    #       # 암호화
+    #       #storage_encrypted: true
+    #       kms_key_id: "arn:aws:kms:ap-northeast-2:070839874981:key/983452cf-276f-4d56-ae73-3bf4a9f4ae21"
+    #       # 유지보수
+    #       skip_final_snapshot: true # UI상에서는 false
+    #       backup_retention_period: 1
+    #       preferred_backup_window: #"18:29-18:59"
+    #       preferred_maintenance_window: #"sat:16:49-sat:17:19"
+
+    #   # 클러스터 인스턴스 수 = 레플리카 수 결정
+    #   # 1개면 Writer만 생성, 2개 이상이면 Reader 추가
+    #   cluster_instances:
+    #     aurora_postgres_01:
+    #       instance_class: "db.r7i.xlarge"
+    #       availability_zone: "a"
+    #       promotion_tier: 1
+    #     aurora_postgres_02:
+    #       instance_class: "db.r7i.xlarge"
+    #       availability_zone: "c"
+    #       promotion_tier: 2
+    
+  ############### EFS ###############
+  # - file_systems: EFS 파일 시스템 정의
+  #   - kms_key_id: KMS ARN
+  #   - throughput_mode: bursting / provisioned / elastic
+  #   - subnet_types: 마운트 타겟 서브넷 타입 목록 (db, com 등)
+  #   - security_groups: vpc.security_groups 키 참조
+  #   - access_points: 액세스 포인트 목록
+  #     - root_directory: 액세스 포인트 루트 디렉토리 경로 및 생성 정보
+  #       - path: 루트 디렉토리 경로 (예: "/share")
+  #       - creation_info: 디렉토리 생성 시 소유자/권한
+  #         - owner_uid: UID
+  #         - owner_gid: GID
+  #         - permissions: 권한 (예: "0755")
+  #     - posix_user: 접속 시 적용할 POSIX 사용자
+  #       - uid: UID
+  #       - gid: GID
+  efs:
+    file_systems:
+        # EFS 추가 생성 시 name_optional만 변경
+      efs_share_share:
+        # name 미지정 시 환경별 base_name으로 자동 생성
+        name_optional: ""
+        kms_key_id: "arn:aws:kms:ap-northeast-2:070839874981:key/0ed2a55c-60ef-4c5d-a506-01e66694cdd1"
+        throughput_mode: "elastic"
+
+        # 참조
+        # DB subnet이 아니라 COM subnet에 마운트
+        subnet_types: 
+        - "com"
+        security_groups:
+        - "efs"
+
+        # 액세스 포인트 
+        access_points:
+        - name_optional: "share"
+          root_directory:
+            path: "/share"
+            creation_info:
+              owner_gid: 1000
+              owner_uid: 1000
+              permissions: "0755"
+          posix_user:
+            gid: 1000
+            uid: 1000
+
+

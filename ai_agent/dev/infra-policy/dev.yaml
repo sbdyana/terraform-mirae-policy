@@ -1,0 +1,81 @@
+############### VPC ###############
+vpc:
+  cidr: "10.242.0.0/19"
+
+  att:
+    subnets:
+    - subnet:
+        zones:
+        - zone: "a"
+        - zone: "c"
+    route_tables:
+    - route_table:
+        routes:
+        - type: "CIDR"
+          destination: "10.242.0.0/19"
+          target: "local"
+  
+  com:
+    subnets:
+    - subnet:
+        zones:
+        - zone: "a"
+        - zone: "c"
+    route_tables:
+    - route_table:
+        routes:
+        - type: "CIDR"
+          destination: "10.242.0.0/19"
+          target: "local"
+
+  db:
+    subnets:
+    - subnet:
+        zones:
+        - zone: "a"
+        - zone: "c"
+    route_tables:
+    - route_table:
+        routes:
+        - type: "CIDR"
+          destination: "10.242.0.0/19"
+          target: "local"
+  
+  eksng:
+    subnets:
+    - subnet:
+        zones:
+        - zone: "a"
+        - zone: "c"
+    route_tables:
+    - route_table:
+        routes:
+        - type: "CIDR"
+          destination: "10.242.0.0/19"
+          target: "local"
+
+  lb:
+    subnets:
+    - subnet:
+        zones:
+        - zone: "a"
+        - zone: "c"
+    route_tables:
+    - route_table:
+        routes:
+        - type: "CIDR"
+          destination: "10.242.0.0/19"
+          target: "local"
+  
+  vpce:
+    subnets:
+    - subnet:
+        zones:
+        - zone: "a"
+        - zone: "c"
+    route_tables:
+    - route_table:
+        routes:
+        - type: "CIDR"
+          destination: "10.242.0.0/19"
+          target: "local"

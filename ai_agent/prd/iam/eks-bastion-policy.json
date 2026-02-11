@@ -1,0 +1,16 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EKS",
+      "Effect": "Allow",
+      "Action": [
+        "eks:Describe*",
+        "ecr:*"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": {
+        "AWS": "*"
+      },
+      "Action": "es:*",
+      "Resource": "arn:aws:es:ap-northeast-2:070839874981:domain/oss-cls-aws-an2-d-aiant/*"
+    }
+  ]
+}

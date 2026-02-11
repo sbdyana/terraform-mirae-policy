@@ -1,0 +1,288 @@
+############### VPC ###############
+infra:
+  vpc:
+    # VPC CIDR
+    cidr: &vpc_cidr "10.244.0.0/19"
+
+    ############### Subnet ###############
+    subnets:
+      web:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      application:
+      - subnet:
+        zone: "a" 
+      - subnet:
+        zone: "c"
+      data:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+
+    ############### Route Table ###############
+    route_tables:
+      web:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      application:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      data:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+
+    # ############### Security Group ###############
+    security_groups:
+      alb:
+        type: "alb"
+        name_optional: ""
+        description: "Security group for ALB"
+        rules:
+        - type: "inbound"
+          cidr: "0.0.0.0/0"
+          protocol: "tcp"
+          from_port: 8443
+          to_port: 8443
+          description: "HTTPS(8443) from internet"
+      web:
+        type: "web"
+        name_optional: ""
+        description: "Security group for Web Server"
+        rules:
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 8443
+          to_port: 8443
+          description: "HTTPS(8443) from VPC"
+      application:
+        type: "application"
+        name_optional: ""
+        description: "Security Group for Application server"
+        rules:
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 443
+          to_port: 443
+          description: "Application server Traffic From VPC"
+      data:
+        type: "data"
+        name_optional: ""
+        description: "Security Group for Data"
+        rules:
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 5432
+          to_port: 5432
+          description: "RDS Traffic From VPC"
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 6379
+          to_port: 6379
+          description: "ElastiCache Traffic From VPC"
+      ec:
+        type: "ec"
+        name_optional: "redis"
+        description: "Security Group for Redis"
+        rules:
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 443
+          to_port: 443
+          description: "Redis Traffic From VPC"
+
+
+    # ############### Launch Templates ###############
+    launch_templates:
+      web_lt:
+        type: "web"
+        name_optional: ""
+        ami: "ami-05d2438ca66594916"
+        instance_type: "t3.small"
+        key_name: ""
+
+        security_groups:
+        - "web"
+
+        block_device_mappings:
+        - device_name: "/dev/xvda"
+          ebs:
+            volume_size: 100
+            volume_type: "gp3"
+            delete_on_termination: true
+
+        ebs_optimized: true
+        monitoring_enabled: true
+        metadata_options:
+          http_endpoint: "enabled"
+          http_tokens: "required"
+          http_put_response_hop_limit: 2
+          instance_metadata_tags: "disabled"
+
+    ################ Key Pairs ###############
+    key_pairs:
+      app_key:
+        type: "app"
+        name_optional: ""
+        create_private_key: true
+        rsa_bits: 4096
+        public_key: "" # create_private-key가 false일 경우 필수
+
+    ################ Auto Scaling ###############
+    autoscaling:
+      asgs:
+        web_asg:
+          name_optional: "web"
+          launch_template: "web_lt"
+
+          min_size: 2
+          max_size: 2
+          desired_capacity: 2
+
+          subnet_type: "web"
+          availability_zones: ["a", "c"]
+
+          health_check_type: "ELB"
+          health_check_grace_period: 300
+
+
+    ################ ALBs ###############
+    albs:
+      web:
+        name_optional: "web"
+        load_balancer_type: "network" # application(ALB) | network(NLB) | gateway(GWLB)
+        internal: true
+        subnet_type: "web"
+        availability_zones: ["a", "c"]
+        security_groups:
+        - "alb"
+
+        target_groups:
+          web_tg:
+            type: "web"
+            port: 8443
+            protocol: "TCP"
+            target_type: "instance"
+            health_check:
+              enabled: true
+              protocol: "TCP"
+              path: "/"
+              port: "traffic-port"
+              healthy_threshold: 3
+              unhealthy_threshold: 3
+              interval: 30
+              timeout: 5
+              matcher: "200-399"
+
+        listeners:
+          https:
+            port: 8443
+            protocol: "TCP"
+            ssl_policy: ""
+            certificate_arn: ""
+            default_action:
+              type: "forward"
+              target_group: "web_tg"
+
+        # ASG key -> target group keys
+        asg_target_groups:
+          web_asg:
+          - "web_tg"
+      # web2:
+      #   name_optional: "web2"
+      #   load_balancer_type: "application" # application(ALB) | network(NLB) | gateway(GWLB)
+      #   internal: true
+      #   subnet_type: "web"
+      #   availability_zones: ["a", "c"]
+      #   security_groups:
+      #   - "alb"
+
+      #   target_groups:
+      #     web_tg:
+      #       type: "web2"
+      #       port: 8443
+      #       protocol: "HTTP"
+      #       target_type: "instance"
+      #       health_check:
+      #         enabled: true
+      #         protocol: "HTTP"
+      #         path: "/"
+      #         port: "traffic-port"
+      #         healthy_threshold: 3
+      #         unhealthy_threshold: 3
+      #         interval: 30
+      #         timeout: 5
+      #         matcher: "200-399"
+
+      #   listeners:
+      #     https:
+      #       port: 8443
+      #       protocol: "HTTP"
+      #       ssl_policy: ""
+      #       certificate_arn: ""
+      #       default_action:
+      #         type: "forward"
+      #         target_group: "web_tg"
+
+      #   # ASG key -> target group keys
+      #   asg_target_groups:
+      #     web_asg:
+      #     - "web_tg"
+
+    # ############### EC2 Instance ###############
+    ec2_instances:
+      ec2-01:
+        name_optional: "app-server"
+        ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
+        instance_type: "t3.small" #r7i.large
+        subnet: "application" 
+        availability_zone: "a"
+        security_groups: 
+        - "application"
+        key_pair: "app_key"
+        iam_instance_profile: 
+        ebs_optimized: true
+        root_block_device:
+          volume_type: "gp3"
+          volume_size: 100
+          iops: 0
+          throughput: 0
+          encrypted:
+          kms_key_id: ""
+      ec2-02:
+        name_optional: "app-server"
+        ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
+        instance_type: "t3.small" #r7i.large
+        subnet: "application" 
+        availability_zone: "c"
+        security_groups: 
+        - "application"
+        key_pair: ""
+        iam_instance_profile: 
+        ebs_optimized: true
+        root_block_device:
+          volume_type: "gp3"
+          volume_size: 100
+          iops: 0
+          throughput: 0
+          encrypted:
+          kms_key_id: ""

@@ -1,0 +1,552 @@
+############### VPC ###############
+infra:
+  vpc:
+    # VPC CIDR
+    cidr: &vpc_cidr "10.244.0.0/19"
+
+    ############### Subnet ###############
+    # 타입별 서브넷 정의 [att, com, db, eksng, lb, vpce]
+    # - subnet: 서브넷 마커 (값 없음)
+    # - zone: 가용영역 (a, c)
+    subnets:
+      att:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      com:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      db:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      eksng:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      lb:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+      vpce:
+      - subnet:
+        zone: "a"
+      - subnet:
+        zone: "c"
+
+    ############### Route Table ###############
+    # 타입별 라우트 테이블 정의 [att, com, db, eksng, lb, vpce]
+    # - route_table: 라우트 테이블 마커 (값 없음)
+    # - routes: 라우트 목록
+    #   - route:
+    #       type: 라우트 타입 (CIDR, PrefixList 등)
+    #       destination: 목적지 CIDR
+    #       target: 타겟 (local, nat-gateway, internet-gateway 등)
+    route_tables:
+      att:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      com:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      db:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      eksng:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      lb:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+      vpce:
+      - route_table:
+        routes:
+        - route:
+            type: "CIDR"
+            destination: *vpc_cidr
+            target: "local"
+
+    security_groups:
+      vpce:
+        type: "vpce"
+        name_optional: ""
+        description: "Security group for VPC endpoints"
+        rules:
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 443
+          to_port: 443
+          description: "HTTPS from VPC"
+      ec:
+        type: "ec"
+        name_optional: "redis"
+        description: "Security Group for Redis"
+        rules:
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 443
+          to_port: 443
+          description: "Redis Traffic From VPC"
+      ############### ec2 weaviate sg ###############
+      sg-03:
+        type: "ec2"
+        name_optional: "weaviate"
+        description: "Security Group for ec2 weaviate"
+        rules:
+        - type: "inbound"
+          cidr: "10.241.0.0/16"
+          protocol: "tcp"
+          from_port: 22
+          to_port: 22
+          description: "SSH From Network VPC"
+        - type: "inbound"
+          cidr: 10.244.0.0/19
+          protocol: "-1"
+          from_port: 
+          to_port: 
+          description: "ANY Traffic From VPC"
+        - type: "outbound"
+          cidr: 0.0.0.0/0
+          protocol: "-1"
+          from_port: 
+          to_port: 
+          description: ""
+        - type: "outbound"
+          cidr: ::/0
+          protocol: "-1"
+          from_port: 
+          to_port: 
+          description: ""
+      ############### opensearch sg ###############
+      sg-04:
+        type: "oss-cls"
+        name_optional: ""
+        description: "Security Group for Opensearch sg"
+        rules:
+        - type: "inbound"
+          cidr: 10.0.0.0/8
+          protocol: "-1"
+          from_port: 
+          to_port: 
+          description: "ANY Traffic From VPC"
+        - type: "outbound"
+          cidr: 0.0.0.0/0
+          protocol: "-1"
+          from_port: 
+          to_port: 
+          description: ""
+      rds:
+        type: "rds"
+        name_optional: "aurora-postgres"
+        rules:
+        - type: "inbound"
+          cidr: "10.241.4.0/24"
+          protocol: "tcp"
+          from_port: 5432
+          to_port: 5432
+          description: "Ingress Bastion (Temp)"
+        - type: "inbound"
+          cidr: *vpc_cidr
+          protocol: "tcp"
+          from_port: 5432
+          to_port: 5432
+          description: "Aurora PostgreSQL"  
+        - type: "outbound"
+          cidr: "0.0.0.0/0"
+          protocol: "-1"
+          description: ""
+        - type: "outbound"  
+          cidr: "::/0"   # IPv6 outbound rule needed
+          protocol: "-1"
+          description: ""
+      efs:
+        type: "efs"
+        name_optional: ""
+        rules:
+        - type: "inbound"
+          cidr: "10.244.0.0/16"
+          protocol: "tcp"
+          from_port: 2049
+          to_port: 2049
+          description: "NFS"
+        - type: "outbound"
+          cidr: "0.0.0.0/0"
+          protocol: "-1"
+          description: "Outbound allow all for EFS"
+        # - type: "outbound"  
+        #   cidr: "::/0"   # IPv6 outbound rule needed
+        #   protocol: "-1"
+        #   description: ""
+
+
+    vpc_endpoints:
+      s3:
+        route_tables:
+        - "com"
+        - "eksng"
+        - "lb"
+        subnets:
+        security_groups:
+      ssm:
+        route_tables:
+        subnets:
+        - "vpce"
+        security_groups:
+        - "vpce"
+      ssmmessages:
+        route_tables:
+        subnets:
+        - "vpce"
+        security_groups:
+        - "vpce"
+
+    ############### ElastiCache (Redis/Valkey) ###############
+    # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+    # - description: 설명
+    # - engine: redis, valkey
+    # - engine_version: 엔진 버전
+    # - node_type: 노드 타입
+    # - port: 포트 (기본값: 6379)
+    # - security_groups: 보안 그룹 참조 (vpc.security_groups에서 정의된 이름)
+    # - num_cache_clusters: 클러스터 수 (cluster mode disabled)
+    # - preferred_azs: 노드별 가용영역 (첫 번째=Primary, 나머지=Replica, 예: ["a", "c"])
+    # - num_node_groups: 노드 그룹 수 (cluster mode enabled)
+    # - replicas_per_node_group: 노드 그룹당 replica 수 (cluster mode enabled)
+    # - automatic_failover_enabled: 자동 failover (기본값: true)
+    # - multi_az_enabled: Multi-AZ (기본값: true)
+    # - at_rest_encryption_enabled: 저장 암호화 (기본값: true)
+    # - transit_encryption_enabled: 전송 암호화 (기본값: true)
+    # - transit_encryption_mode: 전송 암호화 모드 (preferred, required)
+    # - auth_token: 인증 토큰 (비밀번호)
+    # - kms_key_id: KMS 키 ARN
+    # - snapshot_retention_limit: 스냅샷 보존 기간 (일)
+    # - snapshot_window: 스냅샷 시간 (예: "05:00-09:00")
+    # - maintenance_window: 유지보수 시간 (예: "sun:05:00-sun:09:00")
+    # - auto_minor_version_upgrade: 자동 마이너 버전 업그레이드 (기본값: true)
+    # - apply_immediately: 즉시 적용 (기본값: false)
+    elasticaches:
+      redis:
+        name_optional: "redis"
+        description: "ElastiCache Redis"
+        engine: "redis"
+        engine_version: "7.1"
+        node_type: "cache.r7g.large"
+        port: 6379
+
+        # Cluster mode disabled (replica 구성)
+        num_cache_clusters: 2
+
+        # 노드별 가용영역 지정 (첫 번째 = Primary, 나머지 = Replica)
+        # num_cache_clusters와 개수가 일치해야 함
+        preferred_azs:
+        - "a"  # Primary
+        - "c"  # Replica
+
+        # Cluster mode enabled (샤딩 구성) - 위 num_cache_clusters 대신 사용
+        # num_node_groups: 2
+        # replicas_per_node_group: 1
+
+        # HA 설정
+        automatic_failover_enabled: true
+        multi_az_enabled: true
+
+        # 암호화
+        at_rest_encryption_enabled: true
+        transit_encryption_enabled: true
+        transit_encryption_mode: "required"
+        # auth_token: ""  # 필요시 설정
+        # kms_key_id: ""  # 필요시 KMS ARN
+
+        # 유지보수
+        snapshot_retention_limit: 0
+        snapshot_window: "01:30-02:30"
+        maintenance_window: "fri:05:30-fri:06:30"
+        auto_minor_version_upgrade: false
+        apply_immediately: false
+
+        # 참조
+        security_groups:
+        - "ec"
+
+        subnet_group:
+          subnets:
+          - "db"
+          description: "Subnet Group for Redis"
+
+        parameter_group:
+          family: "redis7"
+          description: "Parameter Group for Redis"
+          parameters:
+          # - name: "maxmemory-policy"
+          #   value: "volatile-lru"
+
+
+############### EC2 Instance ###############
+    # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+    # - ami: AMI ID
+    # - instance_type: 인스턴스 타입 (예: t3.small)
+    # - subnet: 서브넷 타입 키 (att/com/db/eksng/lb/vpce)
+    # - availability_zone: 가용영역 (예: "a", "c")
+    # - security_groups: 보안 그룹 키 목록 (vpc.security_groups의 키)
+    # - iam_instance_profile: IAM 인스턴스 프로파일 이름
+    # - ebs_optimized: EBS 최적화 여부
+    # - root_block_device:
+    #     - volume_type: 루트 볼륨 타입 (gp2/gp3/io1/io2 등)
+    #     - volume_size: 루트 볼륨 크기(GB)
+    #     - iops: IOPS (gp3/io1/io2용)
+    #     - throughput: 처리량 (gp3용, MiB/s)
+    #     - encrypted: 암호화 여부
+    #     - kms_key_id: KMS 키 ID/ARN
+    
+    ec2_instances:
+      ec2-01:
+        name_optional: "weaviate"
+        ami: "ami-05d2438ca66594916" #ami-0fd5d2f9e0c7a3fd6 (ami-aws-an2-d-aiant-ec2-base)
+        instance_type: "t3.small" #r7i.large
+        subnet: "db" 
+        availability_zone: "a"
+        security_groups: 
+        - "sg-03"
+        iam_instance_profile: 
+        ebs_optimized: 
+        root_block_device:
+          volume_type: "gp3"
+          volume_size: 100
+          iops: 0
+          throughput: 0
+          encrypted:
+          kms_key_id: ""
+
+    ############### OpenSearch ###############
+    # 최종 Name: oss-cls-${local.base_name}
+    # - engine_version: 엔진 버전 (기본값: "OpenSearch_2.11")
+    # - instance_type: 데이터 노드 타입 (기본값: "r6g.large.search")
+    # - instance_count: 데이터 노드 수 (기본값: 1)
+    # - dedicated_master_enabled: 전용 마스터 사용 여부 (기본값: false)
+    # - dedicated_master_type: 전용 마스터 타입 (기본값: "")
+    # - dedicated_master_count: 전용 마스터 수 (기본값: 0)
+    # - zone_awareness_enabled: 멀티 AZ 여부 (기본값: false)
+    # - availability_zone_count: AZ 개수 (기본값: zone_awareness_enabled=true면 2, 아니면 1)
+    # - ebs_enabled: EBS 사용 여부 (기본값: true)
+    # - ebs_volume_type: EBS 타입 (기본값: "gp3")
+    # - ebs_volume_size: EBS 용량 GB (기본값: 100)
+    # - ebs_iops: IOPS (기본값: null)
+    # - ebs_throughput: Throughput MiB/s (기본값: null)
+    # - subnets: 서브넷 타입 키 리스트
+    # - availability_zones: AZ 리스트 (zone_awareness_enabled=false면 1개, true면 2개 이상)
+    # - security_groups: 보안그룹 키 리스트 (기본값: [])
+    # - encrypt_at_rest_enabled: 저장 암호화 (기본값: true)
+    # - advanced_security_options_enabled: 보안 옵션 활성화 (기본값: false)
+    # - anonymous_auth_enabled: 익명 인증 허용 (기본값: false)
+    # - internal_user_database_enabled: 내부 유저 DB 사용 (기본값: false)
+    # - master_user_arn: 마스터 유저 ARN (기본값: "")
+    # - master_user_name: 마스터 유저 이름 (기본값: "")
+    # - master_user_password: 마스터 유저 비밀번호 (기본값: "")
+    # - aiml_options.natural_language_query_generation_enabled: 자연어 쿼리 생성 (기본값: false)
+    # - aiml_options.s3_vectors_engine_enabled: S3 Vectors Engine (기본값: false)
+    # - aiml_options.serverless_vector_acceleration_enabled: GPU 벡터 가속 (기본값: false)
+    # - auto_tune_enabled: Auto-Tune 사용 (기본값: null)
+    # - automated_snapshot_start_hour: 자동 스냅샷 시작 시각 (0-23, 기본값: null)
+    # - auto_software_update_enabled: 자동 업데이트 (기본값: null)
+    # - access_policies: 
+    opensearch:
+      engine_version: "OpenSearch_3.3"
+
+      # Cluster configuration
+      instance_type: "m7g.large.search"
+      instance_count: 1 #prd 2
+      dedicated_master_enabled: false #prd true
+      dedicated_master_type: "" # prd"c7g.large.search"
+      dedicated_master_count: 0 # prd 3
+      zone_awareness_enabled: false # prd true
+      availability_zone_count: 1 # prd 2-대기 상태가 아닌 AZ
+      cold_storage_enabled: false
+      # EBS options
+      ebs_enabled: true
+      ebs_volume_type: "gp3"
+      ebs_volume_size: 200 # prd 250
+      ebs_iops: 0
+      ebs_throughput: 250
+
+      # VPC options
+      subnets:
+      - "db"
+      availability_zones: ["a"] # zone_awareness_enabled=false면 1개, true면 2개 이상
+      security_groups:
+      - "sg-04"
+      
+      # Encryption
+      encrypt_at_rest_kms_key_id: "" # 키 필요 
+
+      # Advanced security options
+      advanced_security_options_enabled: true
+      anonymous_auth_enabled: false
+      internal_user_database_enabled: true
+      master_user_arn: 
+      master_user_name: "miraeasset" 
+      master_user_password: "Mirae12#$%"
+
+      # AI/ML options
+      aiml_options:
+        natural_language_query_generation_enabled: false
+        s3_vectors_engine_enabled: false
+        serverless_vector_acceleration_enabled: false
+      auto_tune_enabled: false
+
+      # Snapshot options
+      automated_snapshot_start_hour:
+
+      # Software update options
+      auto_software_update_enabled: false
+
+      # Access policies
+      access_policies: "opensearch-policy.json"
+
+
+    ############### RDS Aurora ###############
+    # rds_auroras 리스트로 여러 세트를 정의
+    # - name_optional: 이름 뒤에 추가할 문자열 (선택)
+    # - family: 파라미터 그룹 패밀리 (예: aurora-postgresql17)
+    # - type: cluster 또는 instance
+    # - engine: aurora-postgresql 또는 aurora-mysql
+    # - engine_version: 엔진 버전 (예: "17.4")
+    # - database_name: 초기 DB 이름
+    # - master_username / master_password: 마스터 계정
+    # - port: 포트
+    # - subnet_group_name: subnet_groups 키 참조
+    # - cluster_parameter_group_name: parameter_groups(type=cluster) 키 참조
+    # - instance_parameter_group_name: parameter_groups(type=instance) 키 참조
+    # - availability_zones: ["a","c"] 처럼 리전 suffix
+    # - security_groups: vpc.security_groups 키 참조
+    # - storage_encrypted: 저장 암호화 여부
+    # - kms_key_id: KMS ARN
+    # - deletion_protection: 삭제 방지
+    # - skip_final_snapshot: 삭제 시 최종 스냅샷 생략 여부
+    # - backup_retention_period: 백업 보존 기간(일)
+    # - preferred_backup_window: 백업 윈도우 (예: "18:29-18:59")
+    # - preferred_maintenance_window: 유지보수 윈도우 (예: "sat:16:49-sat:17:19")
+    # - allow_major_version_upgrade: 메이저 업그레이드 허용
+    # - instance_class: 인스턴스 타입 (예: db.r7i.xlarge)
+    # - availability_zone: 단일 AZ ("a" or "c")
+    # - promotion_tier: 장애조치 우선순위
+    # - auto_minor_version_upgrade: 자동 마이너 업그레이드
+    rds_auroras:
+      # DEV
+      - name_optional: "aurora-postgres" # aurora-postgres
+        # 서브넷 그룹
+        subnet_groups:
+          - rds_subnets:
+            - "db"
+        # 파라미터 그룹
+        parameter_groups:
+          cpg:
+            family: "aurora-postgresql17"
+            type: "cluster"
+          pg:
+            family: "aurora-postgresql17"
+            type: "instance"
+
+        # 데이터베이스 기본 설정
+        clusters:
+          aurora_postgres:
+            engine: "aurora-postgresql"
+            engine_version: "17.4"
+            master_username: "postgres"
+            master_password: "postgres"
+            port: 5432
+            # 참조
+            subnet_group_name: "db"
+            cluster_parameter_group_name: "cpg"
+            instance_parameter_group_name: "pg"
+            availability_zones:
+            - "a"
+            security_groups:
+            - "rds"
+            # 암호화
+            #storage_encrypted: true
+            kms_key_id: "arn:aws:kms:ap-northeast-2:070839874981:key/983452cf-276f-4d56-ae73-3bf4a9f4ae21"
+            # 유지보수
+            skip_final_snapshot: true # UI상에서는 false
+            backup_retention_period: 1
+            preferred_backup_window: "18:29-18:59" 
+            preferred_maintenance_window: "sat:16:49-sat:17:19"
+
+        # 클러스터 인스턴스 수 = 레플리카 수 결정
+        # 1개면 Writer만 생성, 2개 이상이면 Reader 추가
+        cluster_instances:
+          aurora_postgres_01:
+            instance_class: "db.r7i.large"
+            availability_zone: "a"
+
+    ############### EFS ###############
+    # - file_systems: EFS 파일 시스템 정의
+    #   - kms_key_id: KMS ARN
+    #   - throughput_mode: bursting / provisioned / elastic
+    #   - subnet_types: 마운트 타겟 서브넷 타입 목록 (db, com 등)
+    #   - security_groups: vpc.security_groups 키 참조
+    #   - access_points: 액세스 포인트 목록
+    #     - root_directory: 액세스 포인트 루트 디렉토리 경로 및 생성 정보
+    #       - path: 루트 디렉토리 경로 (예: "/share")
+    #       - creation_info: 디렉토리 생성 시 소유자/권한
+    #         - owner_uid: UID
+    #         - owner_gid: GID
+    #         - permissions: 권한 (예: "0755")
+    #     - posix_user: 접속 시 적용할 POSIX 사용자
+    #       - uid: UID
+    #       - gid: GID
+    efs:
+      file_systems:
+          # EFS 추가 생성 시 name_optional만 변경
+        efs_share_share:
+          # name 미지정 시 환경별 base_name으로 자동 생성
+          name_optional: ""
+          kms_key_id: "arn:aws:kms:ap-northeast-2:070839874981:key/0ed2a55c-60ef-4c5d-a506-01e66694cdd1"
+          throughput_mode: "elastic"
+
+          # 참조
+          # DB subnet이 아니라 COM subnet에 마운트
+          subnet_types: 
+          - "com"
+          security_groups:
+          - "efs"
+
+          # 액세스 포인트 
+          access_points:
+          - name_optional: "share"
+            root_directory:
+              path: "/share"
+              creation_info:
+                owner_gid: 1000
+                owner_uid: 1000
+                permissions: "0755"
+            posix_user:
+              gid: 1000
+              uid: 1000
